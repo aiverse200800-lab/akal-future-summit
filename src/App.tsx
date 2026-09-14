@@ -7,9 +7,11 @@ import RegisterPage from '@/pages/RegisterPage';
 import FAQPage from '@/pages/FAQPage';
 import ScrollToTop from '@/components/ScrollToTop';
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 function App() {
   return (
-    <BrowserRouter basename="/akal-future-summit">
+    <BrowserRouter basename={basename}>
       <ScrollToTop />
 
       <div className="min-h-screen bg-summit-cream">
