@@ -9,10 +9,12 @@ import ScrollToTop from '@/components/ScrollToTop';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/akal-future-summit">
       <ScrollToTop />
+
       <div className="min-h-screen bg-summit-cream">
         <Navbar />
+
         <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -21,6 +23,7 @@ function App() {
             <Route path="/faq" element={<FAQPage />} />
           </Routes>
         </main>
+
         <Footer />
       </div>
     </BrowserRouter>
