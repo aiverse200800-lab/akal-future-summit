@@ -37,10 +37,10 @@ jobs:
         run: npm ci
 
       - name: Build website
-        run: npm run build
         env:
-          VITE_SUPABASE_URL: https://ghfemksxinmrazbevlok.supabase.co
-          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoZmVta3N4aW5tcmF6YmV2bG9rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTM4NzA1NCwiZXhwIjoyMTA0OTYzMDU0fQ.1VwAfEwo4ulhzvSK3Ee6lyDznP9X74Ibls1kYuOI1NQ
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
