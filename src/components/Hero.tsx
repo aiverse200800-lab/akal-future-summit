@@ -4,7 +4,6 @@ import { ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   const [posterLoadFailed, setPosterLoadFailed] = useState(false);
-  const asset = (name: string) => `${import.meta.env.BASE_URL}${name}`;
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-16 bg-summit-cream">
@@ -42,7 +41,7 @@ export default function Hero() {
               <div className="grid w-full max-w-lg grid-cols-4 items-center gap-2 sm:gap-4">
                 <div className="flex items-center justify-center">
                   <img
-                    src={asset('image%20copy.png')}
+                    src="/image%20copy.png"
                     alt="Akal Academy Baru Sahib CBSE logo"
                     className="h-9 w-full object-contain sm:h-10"
                     loading="eager"
@@ -50,7 +49,7 @@ export default function Hero() {
                 </div>
                 <div className="flex items-center justify-center">
                   <img
-                    src={asset('image%20copy%202.png')}
+                    src="/image%20copy%202.png"
                     alt="ISB Mohali and Atal Incubation Centre logo"
                     className="h-9 w-full object-contain sm:h-10"
                     loading="eager"
@@ -58,7 +57,7 @@ export default function Hero() {
                 </div>
                 <div className="flex items-center justify-center">
                   <img
-                    src={asset('image%20copy%203.png')}
+                    src="/image%20copy%203.png"
                     alt="TalentGro logo"
                     className="h-9 w-full object-contain sm:h-10"
                     loading="eager"
@@ -66,7 +65,7 @@ export default function Hero() {
                 </div>
                 <div className="flex items-center justify-center">
                   <img
-                    src={asset('Amoeba_-_transparent_logo.png')}
+                    src="/Amoeba_-_transparent_logo.png"
                     alt="Amoeba Education logo"
                     className="h-9 w-full object-contain sm:h-10"
                     loading="eager"
@@ -83,8 +82,8 @@ export default function Hero() {
             </h1>
 
             <p className="mt-6 text-xl sm:text-2xl lg:text-3xl font-display font-semibold text-summit-charcoal/80 leading-tight text-balance">
-              Where Ideas Meet{' '}
-              <span className="text-summit-orange-600">Opportunity.</span>
+              Two Days | One Summit |{' '}
+              <span className="text-summit-orange-600">A Lifetime of Possibilities</span>
             </p>
 
             <p className="mt-5 text-base sm:text-lg text-summit-charcoal/60 max-w-xl leading-relaxed">
@@ -134,7 +133,7 @@ export default function Hero() {
                   </div>
                 ) : (
                   <img
-                    src={asset('IMG-20260910-WA0014.jpg')}
+                    src="/IMG-20260910-WA0014.jpg"
                     alt="Akal Future Founders Summit 2026 event poster"
                     className="h-auto w-full rounded-xl object-cover"
                     loading="eager"

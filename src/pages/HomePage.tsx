@@ -4,7 +4,6 @@ import Program from '@/components/Program';
 import Participation from '@/components/Participation';
 import BaruSahibExperience from '@/components/BaruSahibExperience';
 import Fee from '@/components/Fee';
-import FinalJuryShowcase from '@/components/FinalJuryShowcase';
 import ContactCTA from '@/components/ContactCTA';
 
 export default function HomePage() {
@@ -16,7 +15,6 @@ export default function HomePage() {
       <Participation />
       <BaruSahibExperience />
       <Fee />
-      <FinalJuryShowcase />
       <ContactCTA />
     </>
   );

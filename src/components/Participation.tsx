@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { GraduationCap, School, MapPin, Users, ArrowRight } from 'lucide-react';
 
@@ -66,13 +65,13 @@ export default function Participation() {
                 </div>
               </div>
 
-              <Link
-                to="/register"
+              <a
+                href="#register"
                 className="group mt-8 inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-base px-6 py-3 rounded-xl transition-all hover:shadow-lg hover:shadow-summit-orange-500/25 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Register Now
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
             </div>
 
             <div className="lg:col-span-5">
