@@ -9,7 +9,7 @@ interface PaymentPageProps {
   onComplete: (record: RegistrationRecord) => void;
 }
 
-const QR_IMAGE = '/payment-qr.jpg';
+const QR_IMAGE = 'https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=20&data=upi%3A%2F%2Fpay%3Fpa%3Dpulkitmangla111-1%40okicici%26pn%3DPulkit%2520Mangla%26aid%3DuGICAgIC_gs7CKg';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
@@ -82,7 +82,7 @@ export default function PaymentPage({ registration, paymentToken, onComplete }: 
         {amount && <div className="mb-6 p-4 rounded-xl bg-summit-orange-50 border border-summit-orange-100"><div className="text-xs text-summit-charcoal/50 mb-1">Amount</div><div className="font-bold text-lg text-summit-charcoal">{amount}</div></div>}
         <div className="rounded-2xl border border-summit-orange-100 bg-summit-cream p-5 sm:p-7 text-center">
           <div className="flex items-center justify-center gap-2 text-sm font-semibold text-summit-charcoal mb-4"><QrCode className="w-5 h-5 text-summit-orange-600" /> Scan & Pay</div>
-          <div className="mx-auto w-full max-w-[420px] bg-white rounded-xl p-3 shadow-sm border border-summit-orange-50"><img src={QR_IMAGE} alt="Payment QR code" className="block w-full h-auto object-contain" /></div>
+          <div className="mx-auto w-full max-w-[420px] bg-white rounded-xl p-3 shadow-sm border border-summit-orange-50"><img src={QR_IMAGE} alt="Payment QR code for Pulkit Mangla, UPI ID pulkitmangla111-1@okicici" className="block w-full h-auto object-contain" /></div>
           <p className="text-sm text-summit-charcoal/65 mt-5">Scan the QR code using your UPI/payment app and complete the payment.</p>
           <p className="text-sm text-summit-charcoal/65 mt-2">After completing the payment, upload your payment screenshot/proof below.</p>
         </div>
