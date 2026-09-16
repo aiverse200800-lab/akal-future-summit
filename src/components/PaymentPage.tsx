@@ -2,207 +2,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, CreditCard, ExternalLink, Loader2, Upload, QrCode, X } from 'lucide-react';
 import type { RegistrationRecord } from '@/types/registration';
 
-interface PaymentPageProps {
-  registration: RegistrationRecord;
-  paymentToken: string;
-  onComplete: (record: RegistrationRecord) => void;
-}
-
+interface PaymentPageProps { registration: RegistrationRecord; paymentToken: string; onComplete: (record: RegistrationRecord) => void; }
 const QR_IMAGE = `${import.meta.env.BASE_URL}WhatsApp Image 2026-09-16 at 22.12.43.jpeg`;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const PAYMENT_AMOUNT = 10;
-
-interface PaymentStatusResponse {
-  payment_status: string;
-  registration_status: string;
-  payment_amount: number;
-  payment_transaction_id: string | null;
-  payment_verified_at: string | null;
-  proof_status: string;
-  payment_proof_path: string | null;
-  payment_submitted_at: string | null;
-  completed_at: string | null;
-}
+interface PaymentStatusResponse { payment_status:string; registration_status:string; payment_amount:number; payment_transaction_id:string|null; payment_verified_at:string|null; proof_status:string; payment_proof_path:string|null; payment_submitted_at:string|null; completed_at:string|null; }
 
 export default function PaymentPage({ registration, paymentToken, onComplete }: PaymentPageProps) {
-  const [showUpload, setShowUpload] = useState(false);
-  const [showQr, setShowQr] = useState(false);
-  const [qrError, setQrError] = useState(false);
-  const [status, setStatus] = useState<PaymentStatusResponse | null>(null);
-  const [checking, setChecking] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => () => {
-    if (preview) URL.revokeObjectURL(preview);
-  }, [preview]);
-
-  const checkPaymentStatus = useCallback(async () => {
-    if (!registration.id || !paymentToken) return;
-    setChecking(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-payment-status`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ registrationId: registration.id, paymentToken }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'Could not check payment status. Please try again.');
-      setStatus(result as PaymentStatusResponse);
-      setError('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not check payment status. Please try again.');
-    } finally {
-      setChecking(false);
-    }
-  }, [registration.id, paymentToken]);
-
-  useEffect(() => {
-    void checkPaymentStatus();
-    const timer = window.setInterval(() => void checkPaymentStatus(), 5000);
-    return () => window.clearInterval(timer);
-  }, [checkPaymentStatus]);
-
-  const paymentVerified = status?.payment_status === 'verified';
-
-  const handleFile = (selected: File | undefined) => {
-    setError('');
-    setFile(null);
-    if (preview) URL.revokeObjectURL(preview);
-    setPreview(null);
-    if (!selected) return;
-    if (!ALLOWED_TYPES.includes(selected.type)) {
-      setError('Please upload a JPG, JPEG, PNG, WEBP, or PDF file.');
-      return;
-    }
-    if (selected.size > MAX_FILE_SIZE) {
-      setError('File is too large. Please choose a file up to 5 MB.');
-      return;
-    }
-    setFile(selected);
-    if (selected.type.startsWith('image/')) setPreview(URL.createObjectURL(selected));
-  };
-
-  const submitProof = async () => {
-    if (!file || submitting || !paymentVerified) return;
-    setSubmitting(true);
-    setError('');
-    try {
-      const form = new FormData();
-      form.append('registrationId', registration.id);
-      form.append('paymentToken', paymentToken);
-      form.append('file', file);
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-payment-proof`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
-        body: form,
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'Payment proof could not be uploaded. Please try again.');
-      onComplete({
-        ...registration,
-        payment_amount: PAYMENT_AMOUNT,
-        payment_status: 'verified',
-        payment_transaction_id: status?.payment_transaction_id || null,
-        payment_verified_at: status?.payment_verified_at || null,
-        proof_status: 'uploaded',
-        registration_status: 'completed',
-        payment_proof_path: result.path || null,
-        payment_submitted_at: result.payment_submitted_at || new Date().toISOString(),
-        completed_at: result.completed_at || new Date().toISOString(),
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Payment proof could not be uploaded. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-2xl border border-summit-orange-100 shadow-xl shadow-summit-orange-900/5 overflow-hidden">
-      <div className="bg-summit-charcoal px-6 py-7 text-center">
-        <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3"><CreditCard className="w-7 h-7 text-white" /></div>
-        <h3 className="font-display font-bold text-2xl text-white">Complete Your Payment</h3>
-        <p className="text-sm text-white/60 mt-1">Pay exactly ₹10 using the provided UPI QR code.</p>
-      </div>
-      <div className="p-6 lg:p-8">
-        <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 rounded-xl bg-summit-cream border border-summit-orange-50"><div className="text-xs text-summit-charcoal/50 mb-1">Name</div><div className="font-semibold text-summit-charcoal break-words">{registration.student_name}</div></div>
-          <div className="p-4 rounded-xl bg-summit-cream border border-summit-orange-50"><div className="text-xs text-summit-charcoal/50 mb-1">Registration ID</div><div className="font-semibold text-summit-charcoal break-all">{registration.registration_ref}</div></div>
-        </div>
-        <div className="mb-6 p-4 rounded-xl bg-summit-orange-50 border border-summit-orange-100"><div className="text-xs text-summit-charcoal/50 mb-1">PAYMENT AMOUNT</div><div className="font-bold text-2xl text-summit-charcoal">₹{PAYMENT_AMOUNT}</div></div>
-
-        <div className="rounded-2xl border border-summit-orange-100 bg-summit-cream p-5 sm:p-7 text-center">
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold text-summit-charcoal mb-4"><QrCode className="w-5 h-5 text-summit-orange-600" /> Complete Your Payment</div>
-          {qrError ? (
-            <div className="mx-auto w-full max-w-[420px] min-h-[300px] rounded-xl border border-red-200 bg-red-50 flex flex-col items-center justify-center p-6 text-center">
-              <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
-              <p className="font-semibold text-red-700">Payment QR could not be loaded.</p>
-              <p className="text-sm text-red-600 mt-1">Please refresh the page or contact the event team.</p>
-            </div>
-          ) : (
-            <button type="button" onClick={() => setShowQr(true)} className="mx-auto block w-full max-w-[420px] bg-white rounded-xl p-3 shadow-sm border border-summit-orange-50 hover:shadow-md transition-shadow" aria-label="Open payment QR in larger view">
-              <img src={QR_IMAGE} alt="Provided payment QR code" onError={() => setQrError(true)} className="block w-full h-auto object-contain rounded-lg" />
-              <span className="mt-3 inline-flex items-center justify-center gap-2 text-sm font-semibold text-summit-orange-700"><ExternalLink className="w-4 h-4" />View QR</span>
-            </button>
-          )}
-          <p className="text-sm text-summit-charcoal/65 mt-5">Scan this QR using your UPI/payment app and complete the ₹10 payment.</p>
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-summit-orange-100 bg-white p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <h4 className="font-display font-bold text-lg text-summit-charcoal">Payment Verification</h4>
-              {paymentVerified ? (
-                <p className="text-sm text-green-700 mt-1">PAYMENT SUCCESSFUL · ₹10 verified{status?.payment_transaction_id ? ` · Transaction ID: ${status.payment_transaction_id}` : ''}</p>
-              ) : (
-                <p className="text-sm text-summit-charcoal/60 mt-1">Payment is pending trusted verification. Uploading a screenshot or clicking a button cannot unlock the next step.</p>
-              )}
-            </div>
-            <button type="button" onClick={() => void checkPaymentStatus()} disabled={checking} className="shrink-0 inline-flex items-center justify-center gap-2 border border-summit-orange-200 text-summit-charcoal font-semibold px-4 py-2.5 rounded-xl hover:bg-summit-cream disabled:opacity-50">
-              {checking ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-              {checking ? 'Checking...' : 'Check Payment Status'}
-            </button>
-          </div>
-        </div>
-
-        {paymentVerified && !showUpload && (
-          <button type="button" onClick={() => setShowUpload(true)} className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold px-6 py-4 rounded-xl transition-all hover:shadow-lg"><CheckCircle2 className="w-5 h-5" />Continue to Payment Proof</button>
-        )}
-
-        {paymentVerified && showUpload && (
-          <div className="mt-6 rounded-2xl border border-summit-orange-100 p-5 sm:p-6">
-            <h4 className="font-display font-bold text-lg text-summit-charcoal">Upload Payment Proof</h4>
-            <p className="text-sm text-summit-charcoal/55 mt-1 mb-4">JPG, JPEG, PNG, WEBP or PDF · Maximum 5 MB</p>
-            <label className="flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-summit-orange-200 bg-summit-cream/50 px-4 text-center hover:border-summit-orange-400 transition-colors">
-              <Upload className="w-7 h-7 text-summit-orange-600 mb-2" />
-              <span className="text-sm font-semibold text-summit-charcoal">Choose payment screenshot</span>
-              <span className="text-xs text-summit-charcoal/45 mt-1">or drag and drop it here</span>
-              <input type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={(e) => handleFile(e.target.files?.[0])} />
-            </label>
-            {file && <div className="mt-4 rounded-xl bg-summit-cream p-3 text-sm text-summit-charcoal"><div className="font-semibold break-all">{file.name}</div><div className="text-xs text-summit-charcoal/50 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</div>{preview && <img src={preview} alt="Payment proof preview" className="mt-3 max-h-72 w-full object-contain rounded-lg bg-white" />}</div>}
-            {error && <div className="mt-4 flex items-start gap-2 text-sm text-red-600"><AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />{error}</div>}
-            <button type="button" disabled={!file || submitting} onClick={submitProof} className="w-full mt-5 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-xl transition-all">{submitting ? <><Loader2 className="w-5 h-5 animate-spin" />Submitting Proof...</> : <>Submit Payment Proof</>}</button>
-          </div>
-        )}
-
-        {error && !showUpload && <div className="mt-4 flex items-start gap-2 text-sm text-red-600"><AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />{error}</div>}
-      </div>
-
-      {showQr && !qrError && (
-        <div className="fixed inset-0 z-50 bg-black/70 p-4 sm:p-8 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Payment QR larger view" onClick={() => setShowQr(false)}>
-          <div className="relative max-h-full max-w-2xl rounded-2xl bg-white p-3 sm:p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => setShowQr(false)} className="absolute -right-2 -top-2 z-10 w-9 h-9 rounded-full bg-summit-charcoal text-white flex items-center justify-center shadow-lg" aria-label="Close QR"><X className="w-5 h-5" /></button>
-            <img src={QR_IMAGE} alt="Provided payment QR code enlarged" onError={() => { setQrError(true); setShowQr(false); }} className="max-h-[85vh] max-w-[90vw] w-auto h-auto object-contain rounded-xl" />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  const [showUpload,setShowUpload]=useState(false),[showQr,setShowQr]=useState(false),[qrError,setQrError]=useState(false),[status,setStatus]=useState<PaymentStatusResponse|null>(null),[checking,setChecking]=useState(false),[transactionId,setTransactionId]=useState(''),[submittingTransaction,setSubmittingTransaction]=useState(false),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState<string|null>(null),[submitting,setSubmitting]=useState(false),[error,setError]=useState('');
+  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview)},[preview]);
+  const checkPaymentStatus=useCallback(async()=>{if(!registration.id||!paymentToken)return;setChecking(true);try{const response=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-payment-status`,{method:'POST',headers:{Authorization:`Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({registrationId:registration.id,paymentToken})});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Could not check payment status. Please try again.');setStatus(result as PaymentStatusResponse);if(result.payment_transaction_id)setTransactionId(result.payment_transaction_id);setError('')}catch(err){setError(err instanceof Error?err.message:'Could not check payment status. Please try again.')}finally{setChecking(false)}},[registration.id,paymentToken]);
+  useEffect(()=>{void checkPaymentStatus();const timer=window.setInterval(()=>void checkPaymentStatus(),5000);return()=>window.clearInterval(timer)},[checkPaymentStatus]);
+  const paymentVerified=status?.payment_status==='verified';
+  const submitTransactionReference=async()=>{const clean=transactionId.trim();if(!clean||submittingTransaction||paymentVerified)return;setSubmittingTransaction(true);setError('');try{const response=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-payment-reference`,{method:'POST',headers:{Authorization:`Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({registrationId:registration.id,paymentToken,transactionId:clean})});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Could not submit transaction ID.');setTransactionId(result.payment_transaction_id||clean);await checkPaymentStatus()}catch(err){setError(err instanceof Error?err.message:'Could not submit transaction ID.')}finally{setSubmittingTransaction(false)}};
+  const handleFile=(selected:File|undefined)=>{setError('');setFile(null);if(preview)URL.revokeObjectURL(preview);setPreview(null);if(!selected)return;if(!ALLOWED_TYPES.includes(selected.type)){setError('Please upload a JPG, JPEG, PNG, WEBP, or PDF file.');return}if(selected.size>MAX_FILE_SIZE){setError('File is too large. Please choose a file up to 5 MB.');return}setFile(selected);if(selected.type.startsWith('image/'))setPreview(URL.createObjectURL(selected))};
+  const submitProof=async()=>{if(!file||submitting||!paymentVerified)return;setSubmitting(true);setError('');try{const form=new FormData();form.append('registrationId',registration.id);form.append('paymentToken',paymentToken);form.append('file',file);const response=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-payment-proof`,{method:'POST',headers:{Authorization:`Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`},body:form});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Payment proof could not be uploaded. Please try again.');onComplete({...registration,payment_amount:PAYMENT_AMOUNT,payment_status:'verified',payment_transaction_id:status?.payment_transaction_id||transactionId||null,payment_verified_at:status?.payment_verified_at||null,proof_status:'uploaded',registration_status:'completed',payment_proof_path:result.path||null,payment_submitted_at:result.payment_submitted_at||new Date().toISOString(),completed_at:result.completed_at||new Date().toISOString()})}catch(err){setError(err instanceof Error?err.message:'Payment proof could not be uploaded. Please try again.')}finally{setSubmitting(false)}};
+  return <div className="bg-white rounded-2xl border border-summit-orange-100 shadow-xl shadow-summit-orange-900/5 overflow-hidden"><div className="bg-summit-charcoal px-6 py-7 text-center"><div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3"><CreditCard className="w-7 h-7 text-white"/></div><h3 className="font-display font-bold text-2xl text-white">Complete Your Payment</h3><p className="text-sm text-white/60 mt-1">Pay exactly ₹10 using the provided UPI QR code.</p></div><div className="p-6 lg:p-8"><div className="grid sm:grid-cols-2 gap-4 mb-6"><div className="p-4 rounded-xl bg-summit-cream border border-summit-orange-50"><div className="text-xs text-summit-charcoal/50 mb-1">Name</div><div className="font-semibold text-summit-charcoal break-words">{registration.student_name}</div></div><div className="p-4 rounded-xl bg-summit-cream border border-summit-orange-50"><div className="text-xs text-summit-charcoal/50 mb-1">Registration ID</div><div className="font-semibold text-summit-charcoal break-all">{registration.registration_ref}</div></div></div><div className="mb-6 p-4 rounded-xl bg-summit-orange-50 border border-summit-orange-100"><div className="text-xs text-summit-charcoal/50 mb-1">PAYMENT AMOUNT</div><div className="font-bold text-2xl text-summit-charcoal">₹{PAYMENT_AMOUNT}</div></div><div className="rounded-2xl border border-summit-orange-100 bg-summit-cream p-5 sm:p-7 text-center"><div className="flex items-center justify-center gap-2 text-sm font-semibold text-summit-charcoal mb-4"><QrCode className="w-5 h-5 text-summit-orange-600"/> Complete Your Payment</div>{qrError?<div className="mx-auto w-full max-w-[420px] min-h-[300px] rounded-xl border border-red-200 bg-red-50 flex flex-col items-center justify-center p-6 text-center"><AlertCircle className="w-8 h-8 text-red-500 mb-3"/><p className="font-semibold text-red-700">Payment QR could not be loaded.</p><p className="text-sm text-red-600 mt-1">Please refresh the page or contact the event team.</p></div>:<button type="button" onClick={()=>setShowQr(true)} className="mx-auto block w-full max-w-[420px] bg-white rounded-xl p-3 shadow-sm border border-summit-orange-50 hover:shadow-md transition-shadow"><img src={QR_IMAGE} alt="Provided payment QR code" onError={()=>setQrError(true)} className="block w-full h-auto object-contain rounded-lg"/><span className="mt-3 inline-flex items-center justify-center gap-2 text-sm font-semibold text-summit-orange-700"><ExternalLink className="w-4 h-4"/>View QR</span></button>}<p className="text-sm text-summit-charcoal/65 mt-5">Scan this QR using your UPI/payment app and complete the ₹10 payment.</p></div><div className="mt-6 rounded-2xl border border-summit-orange-100 bg-white p-5 sm:p-6"><div className="flex flex-col gap-4"><div><h4 className="font-display font-bold text-lg text-summit-charcoal">Payment Verification</h4>{paymentVerified?<p className="text-sm text-green-700 mt-1">PAYMENT SUCCESSFUL · ₹10 verified{status?.payment_transaction_id?` · Transaction ID: ${status.payment_transaction_id}`:''}</p>:<p className="text-sm text-summit-charcoal/60 mt-1">After paying, enter the UPI transaction ID/UTR shown by your payment app. The next step unlocks only after trusted server verification.</p>}</div>{!paymentVerified&&<div className="flex flex-col sm:flex-row gap-3"><input value={transactionId} onChange={e=>setTransactionId(e.target.value)} placeholder="UPI Transaction ID / UTR" maxLength={120} className="flex-1 rounded-xl border border-summit-orange-200 px-4 py-3 outline-none focus:ring-2 focus:ring-summit-orange-200"/><button type="button" onClick={()=>void submitTransactionReference()} disabled={!transactionId.trim()||submittingTransaction} className="shrink-0 inline-flex items-center justify-center gap-2 bg-summit-charcoal text-white font-semibold px-4 py-3 rounded-xl disabled:opacity-50">{submittingTransaction?<Loader2 className="w-4 h-4 animate-spin"/>:null}{submittingTransaction?'Submitting...':'Submit Transaction ID'}</button></div>}<button type="button" onClick={()=>void checkPaymentStatus()} disabled={checking} className="self-start inline-flex items-center justify-center gap-2 border border-summit-orange-200 text-summit-charcoal font-semibold px-4 py-2.5 rounded-xl hover:bg-summit-cream disabled:opacity-50">{checking?<Loader2 className="w-4 h-4 animate-spin"/>:<CheckCircle2 className="w-4 h-4"/>}{checking?'Checking...':'Check Payment Status'}</button></div></div>{paymentVerified&&!showUpload&&<button type="button" onClick={()=>setShowUpload(true)} className="w-full mt-6 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold px-6 py-4 rounded-xl transition-all hover:shadow-lg"><CheckCircle2 className="w-5 h-5"/>Continue to Payment Proof</button>}{paymentVerified&&showUpload&&<div className="mt-6 rounded-2xl border border-summit-orange-100 p-5 sm:p-6"><h4 className="font-display font-bold text-lg text-summit-charcoal">Upload Payment Proof</h4><p className="text-sm text-summit-charcoal/55 mt-1 mb-4">JPG, JPEG, PNG, WEBP or PDF · Maximum 5 MB</p><label className="flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-summit-orange-200 bg-summit-cream/50 px-4 text-center hover:border-summit-orange-400 transition-colors"><Upload className="w-7 h-7 text-summit-orange-600 mb-2"/><span className="text-sm font-semibold text-summit-charcoal">Choose payment screenshot</span><span className="text-xs text-summit-charcoal/45 mt-1">or drag and drop it here</span><input type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={e=>handleFile(e.target.files?.[0])}/></label>{file&&<div className="mt-4 rounded-xl bg-summit-cream p-3 text-sm text-summit-charcoal"><div className="font-semibold break-all">{file.name}</div><div className="text-xs text-summit-charcoal/50 mt-1">{(file.size/1024/1024).toFixed(2)} MB</div>{preview&&<img src={preview} alt="Payment proof preview" className="mt-3 max-h-72 w-full object-contain rounded-lg bg-white"/>}</div>}{error&&<div className="mt-4 flex items-start gap-2 text-sm text-red-600"><AlertCircle className="w-4 h-4 mt-0.5 shrink-0"/>{error}</div>}<button type="button" disabled={!file||submitting} onClick={submitProof} className="w-full mt-5 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-xl transition-all">{submitting?<><Loader2 className="w-5 h-5 animate-spin"/>Submitting Proof...</>:<>Submit Payment Proof</>}</button></div>}{error&&!showUpload&&<div className="mt-4 flex items-start gap-2 text-sm text-red-600"><AlertCircle className="w-4 h-4 mt-0.5 shrink-0"/>{error}</div>}</div>{showQr&&!qrError&&<div className="fixed inset-0 z-50 bg-black/70 p-4 sm:p-8 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Payment QR larger view" onClick={()=>setShowQr(false)}><div className="relative max-h-full max-w-2xl rounded-2xl bg-white p-3 sm:p-5 shadow-2xl" onClick={e=>e.stopPropagation()}><button type="button" onClick={()=>setShowQr(false)} className="absolute -right-2 -top-2 z-10 w-9 h-9 rounded-full bg-summit-charcoal text-white flex items-center justify-center shadow-lg" aria-label="Close QR"><X className="w-5 h-5"/></button><img src={QR_IMAGE} alt="Provided payment QR code enlarged" onError={()=>{setQrError(true);setShowQr(false)}} className="max-h-[85vh] max-w-[90vw] w-auto h-auto object-contain rounded-xl"/></div></div>}</div></div>
 }
