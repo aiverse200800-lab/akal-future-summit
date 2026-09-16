@@ -1,5 +1,5 @@
 /*
-# Create registrations table for Akal Young Future Founders Summit
+# Create registrations table for Akal Future Founders Summit
 
 1. New Tables
 - `registrations`
@@ -18,7 +18,7 @@
   - `consent` (boolean, not null default false) — consent checkbox
   - `payment_id` (text) — Razorpay payment ID
   - `payment_status` (text, not null default 'pending') — pending / paid / failed
-  - `registration_ref` (text, unique) — human-readable reference ID (AYFFS-XXXX)
+  - `registration_ref` (text, unique) — human-readable reference ID (AFFS-XXXX)
   - `created_at` (timestamptz, default now())
 
 2. Security
@@ -54,19 +54,7 @@ CREATE TABLE IF NOT EXISTS registrations (
 );
 
 ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
-
--- Allow public INSERT (registration form has no sign-in)
 DROP POLICY IF EXISTS "anon_insert_registrations" ON registrations;
-CREATE POLICY "anon_insert_registrations"
-ON registrations FOR INSERT
-TO anon, authenticated
-WITH CHECK (true);
-
--- Allow public SELECT by registration_ref only (for confirmation lookups)
+CREATE POLICY "anon_insert_registrations" ON registrations FOR INSERT TO anon, authenticated WITH CHECK (true);
 DROP POLICY IF EXISTS "anon_select_registrations" ON registrations;
-CREATE POLICY "anon_select_registrations"
-ON registrations FOR SELECT
-TO anon, authenticated
-USING (true);
-
--- No UPDATE or DELETE policies — registrations are immutable from the frontend
+CREATE POLICY "anon_select_registrations" ON registrations FOR SELECT TO anon, authenticated USING (true);
