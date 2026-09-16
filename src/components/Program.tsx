@@ -19,7 +19,7 @@ export default function Program() {
           </div>
           <div className="mt-10">
             <div className="overflow-hidden rounded-2xl border border-summit-orange-100 bg-white p-2 shadow-lg sm:p-3">
-              <img src={programImage} alt="Six-stage Akal Young Future Founders Summit journey from meeting and discovery to pitching" className="h-auto w-full rounded-xl object-contain" loading="lazy" />
+              <img src={programImage} alt="Six-stage Akal Future Founders Summit journey from meeting and discovery to pitching" className="h-auto w-full rounded-xl object-contain" loading="lazy" />
             </div>
             <Link to="/program" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#f8cda9] px-7 py-3.5 text-base font-semibold text-summit-charcoal shadow-md transition-all hover:bg-[#f5bd8f] hover:shadow-lg">Explore the Program <ArrowRight className="w-4 h-4" /></Link>
           </div>
