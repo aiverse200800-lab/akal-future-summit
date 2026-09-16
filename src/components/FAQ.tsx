@@ -14,6 +14,12 @@ const FAQS = [
   { q: 'What is the refund policy?', a: 'Refunds and cancellations are subject to the organiser\'s final registration policy. The official policy will be displayed before payment and registration.' },
 ];
 
+const PARTNER_LOGOS = [
+  { src: `${BASE_URL}image copy.png`, alt: 'Akal Academy Baru Sahib logo' },
+  { src: `${BASE_URL}image copy 2.png`, alt: 'ISB Mohali and AIC logo' },
+  { src: `${BASE_URL}image copy 3.png`, alt: 'TalentGro logo' },
+];
+
 export default function FAQ() {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -23,11 +29,17 @@ export default function FAQ() {
       <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="mb-10 sm:mb-12">
-            <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-5 sm:gap-8">
-              <div className="flex items-center justify-center min-w-0"><img src={`${BASE_URL}image copy.png`} alt="Akal Academy Baru Sahib logo" className="h-10 sm:h-11 w-full max-w-[150px] object-contain" loading="lazy" /></div>
-              <div className="flex items-center justify-center min-w-0"><img src={`${BASE_URL}image copy 2.png`} alt="ISB Mohali and Atal Incubation Centre logo" className="h-10 sm:h-11 w-full max-w-[150px] object-contain" loading="lazy" /></div>
-              <div className="flex items-center justify-center min-w-0"><img src={`${BASE_URL}image copy 3.png`} alt="TalentGro logo" className="h-10 sm:h-11 w-full max-w-[150px] object-contain" loading="lazy" /></div>
-              <div className="flex items-center justify-center min-w-0"><img src={`${BASE_URL}Amoeba_-_transparent_logo.png`} alt="Amoeba Education logo" className="h-10 sm:h-11 w-full max-w-[150px] object-contain" loading="lazy" /></div>
+            <div className="grid grid-cols-3 items-center justify-items-center gap-8 sm:gap-12">
+              {PARTNER_LOGOS.map((logo) => (
+                <div key={logo.alt} className="flex items-center justify-center w-full min-w-0">
+                  <img
+                    src={logo.src}
+                    alt={logo.alt}
+                    className="w-full max-w-[190px] h-14 sm:h-16 object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
