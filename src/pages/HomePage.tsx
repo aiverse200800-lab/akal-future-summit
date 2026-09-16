@@ -3,7 +3,6 @@ import About from '@/components/About';
 import Program from '@/components/Program';
 import Participation from '@/components/Participation';
 import BaruSahibExperience from '@/components/BaruSahibExperience';
-import Fee from '@/components/Fee';
 import ContactCTA from '@/components/ContactCTA';
 
 export default function HomePage() {
@@ -14,7 +13,6 @@ export default function HomePage() {
       <Program />
       <Participation />
       <BaruSahibExperience />
-      <Fee />
       <ContactCTA />
     </>
   );
