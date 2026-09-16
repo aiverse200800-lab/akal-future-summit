@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { ChevronDown } from 'lucide-react';
 
-const BASE_URL = import.meta.env.BASE_URL;
-
 const FAQS = [
   { q: 'Who can join?', a: 'Students from Classes 9–12, including CBSE, ICSE, Cambridge, and IB schools.' },
   { q: 'Do I need a business idea before attending?', a: 'No. Students are guided through problem discovery, ideation, and idea selection.' },
@@ -14,12 +12,6 @@ const FAQS = [
   { q: 'What is the refund policy?', a: 'Refunds and cancellations are subject to the organiser\'s final registration policy. The official policy will be displayed before payment and registration.' },
 ];
 
-const PARTNER_LOGOS = [
-  { src: `${BASE_URL}AkalAcademy%20(1).png`, alt: 'Akal Academy Baru Sahib logo' },
-  { src: `${BASE_URL}Retina%20Logo%20(1).png`, alt: 'ISB Mohali and AIC logo' },
-  { src: `${BASE_URL}TalentGro%20(2).png`, alt: 'TalentGro logo' },
-];
-
 export default function FAQ() {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -28,16 +20,6 @@ export default function FAQ() {
     <section id="faq" className="py-20 lg:py-28 bg-white relative overflow-hidden">
       <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
-          <div className="mb-10 sm:mb-12">
-            <div className="grid grid-cols-3 items-center justify-items-center gap-8 sm:gap-12">
-              {PARTNER_LOGOS.map((logo) => (
-                <div key={logo.alt} className="flex items-center justify-center w-full min-w-0">
-                  <img src={logo.src} alt={logo.alt} className="w-full max-w-[190px] h-14 sm:h-16 object-contain" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-
           <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-3 text-balance">Frequently asked <span className="text-summit-orange-600">questions</span></h2>
           <p className="text-lg text-summit-charcoal/60 mb-10">Everything you need to know before registering.</p>
 
