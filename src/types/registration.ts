@@ -15,7 +15,10 @@ export interface RegistrationData {
 export interface RegistrationRecord extends RegistrationData {
   id: string;
   payment_id: string | null;
+  payment_amount: number;
   payment_status: string;
+  payment_transaction_id: string | null;
+  payment_verified_at: string | null;
   proof_status: string;
   registration_status: string;
   registration_ref: string | null;
