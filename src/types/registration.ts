@@ -21,6 +21,5 @@ export interface RegistrationRecord extends RegistrationData {
 }
 
 export const SUMMIT_FEE = 5000;
-export const SUMMIT_FEE_DISPLAY = '₹5,000';
 export const SUMMIT_DATES = '22–23 October 2026';
 export const SUMMIT_VENUE = 'Akal Academy Baru Sahib, Himachal Pradesh';
