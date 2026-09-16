@@ -41,6 +41,43 @@ export default function FAQ() {
     <section id="faq" className="py-20 lg:py-28 bg-white relative overflow-hidden">
       <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
+          <div className="mb-10 sm:mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-5 sm:gap-8">
+              <div className="flex items-center justify-center min-w-0">
+                <img
+                  src="/image%20copy.png"
+                  alt="Akal Academy Baru Sahib CBSE logo"
+                  className="h-10 sm:h-11 w-full max-w-[150px] object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex items-center justify-center min-w-0">
+                <img
+                  src="/image%20copy%202.png"
+                  alt="ISB Mohali and Atal Incubation Centre logo"
+                  className="h-10 sm:h-11 w-full max-w-[150px] object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex items-center justify-center min-w-0">
+                <img
+                  src="/image%20copy%203.png"
+                  alt="TalentGro logo"
+                  className="h-10 sm:h-11 w-full max-w-[150px] object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex items-center justify-center min-w-0">
+                <img
+                  src="/Amoeba_-_transparent_logo.png"
+                  alt="Amoeba Education logo"
+                  className="h-10 sm:h-11 w-full max-w-[150px] object-contain"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+
           <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-3 text-balance">
             Frequently asked{' '}
             <span className="text-summit-orange-600">questions</span>
