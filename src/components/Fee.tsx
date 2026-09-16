@@ -18,14 +18,7 @@ export default function Fee() {
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-5">
               <div className="relative">
-                <div className="absolute -top-6 -left-2 font-display font-bold text-[10rem] text-summit-orange-200/50 leading-none select-none pointer-events-none hidden lg:block">
-                  ₹
-                </div>
                 <div className="relative">
-                  <div className="text-sm font-semibold text-summit-charcoal/50 uppercase tracking-wider mb-2">Per Student</div>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="font-display font-bold text-7xl sm:text-8xl text-summit-orange-600 leading-none">₹5,000</span>
-                  </div>
                   <div className="text-lg text-summit-charcoal/60 font-display font-semibold">
                     Everything you need for the summit.
                   </div>
@@ -66,10 +59,7 @@ export default function Fee() {
                   <div className="text-white/80 text-sm">
                     Ready to join? Reserve your seat today.
                   </div>
-                  <Link
-                    to="/register"
-                    className="group inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  >
+                  <Link to="/register" className="group inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
                     Register
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
@@ -77,7 +67,6 @@ export default function Fee() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
