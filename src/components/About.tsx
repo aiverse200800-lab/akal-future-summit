@@ -4,7 +4,7 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 export default function About() {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
-  const schoolImage = `${import.meta.env.BASE_URL}Akal_School.jpg%20copy.jpeg`;
+  const schoolImage = `${import.meta.env.BASE_URL}about-school-replacement.svg`;
 
   return (
     <section id="about" className="py-20 lg:py-28 bg-summit-cream relative overflow-hidden">
