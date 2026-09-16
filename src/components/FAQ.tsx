@@ -15,9 +15,9 @@ const FAQS = [
 ];
 
 const PARTNER_LOGOS = [
-  { src: `${BASE_URL}image copy.png`, alt: 'Akal Academy Baru Sahib logo' },
-  { src: `${BASE_URL}image copy 2.png`, alt: 'ISB Mohali and AIC logo' },
-  { src: `${BASE_URL}image copy 3.png`, alt: 'TalentGro logo' },
+  { src: `${BASE_URL}AkalAcademy%20(1).png`, alt: 'Akal Academy Baru Sahib logo' },
+  { src: `${BASE_URL}Retina%20Logo%20(1).png`, alt: 'ISB Mohali and AIC logo' },
+  { src: `${BASE_URL}TalentGro%20(2).png`, alt: 'TalentGro logo' },
 ];
 
 export default function FAQ() {
@@ -32,12 +32,7 @@ export default function FAQ() {
             <div className="grid grid-cols-3 items-center justify-items-center gap-8 sm:gap-12">
               {PARTNER_LOGOS.map((logo) => (
                 <div key={logo.alt} className="flex items-center justify-center w-full min-w-0">
-                  <img
-                    src={logo.src}
-                    alt={logo.alt}
-                    className="w-full max-w-[190px] h-14 sm:h-16 object-contain"
-                    loading="lazy"
-                  />
+                  <img src={logo.src} alt={logo.alt} className="w-full max-w-[190px] h-14 sm:h-16 object-contain" loading="lazy" />
                 </div>
               ))}
             </div>
