@@ -1,32 +1,34 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
+const BASE_URL = import.meta.env.BASE_URL;
+
 const PARTNERS = [
   {
     name: 'AKAL ACADEMY BARU SAHIB',
     role: 'Host / 40th Foundation Day',
     desc: 'A residential IB, Cambridge, and CBSE school in the Himalayas, hosting the summit through its Entrepreneurship Club.',
-    logo: '/image%20copy.png',
+    logo: `${BASE_URL}image copy.png`,
     alt: 'Akal Academy Baru Sahib logo',
   },
   {
     name: 'ISB MOHALI & AIC',
     role: 'Innovation Ecosystem Partner',
     desc: 'Connecting future founders to a broader innovation and startup ecosystem through ISB Mohali and the Atal Incubation Centre.',
-    logo: '/image%20copy%202.png',
+    logo: `${BASE_URL}image copy 2.png`,
     alt: 'ISB Mohali and Atal Incubation Centre logo',
   },
   {
     name: 'TALENTGRO GLOBAL',
     role: 'Program / Learning Ecosystem Partner',
     desc: 'Providing the learning framework, mentorship structure, and program design that powers the founder journey.',
-    logo: '/image%20copy%203.png',
+    logo: `${BASE_URL}image copy 3.png`,
     alt: 'TalentGro Global logo',
   },
   {
     name: 'AMOEBA EDUCATION',
     role: 'Collaboration Partner',
     desc: 'Bringing hands-on learning experiences and creative problem-solving tools to the founder journey.',
-    logo: '/Amoeba_-_transparent_logo.png',
+    logo: `${BASE_URL}Amoeba_-_transparent_logo.png`,
     alt: 'Amoeba Education logo',
   },
 ];
@@ -54,12 +56,12 @@ export default function Partners() {
                 className="group bg-white border border-summit-orange-100 rounded-2xl p-6 hover:border-summit-orange-300 hover:shadow-xl hover:shadow-summit-orange-900/5 transition-all"
                 style={{ transitionDelay: `${i * 80}ms` }}
               >
-                {/* Official logo */}
-                <div className="relative h-20 w-full overflow-hidden rounded-xl border border-summit-orange-50 bg-white group-hover:bg-summit-cream transition-colors flex items-center justify-center p-3">
+                {/* Official logo — contained entirely inside the card */}
+                <div className="relative h-24 w-full overflow-hidden rounded-xl border border-summit-orange-50 bg-white group-hover:bg-summit-cream transition-colors flex items-center justify-center p-3 sm:p-4 mb-1">
                   <img
                     src={partner.logo}
                     alt={partner.alt}
-                    className="h-full w-full object-contain"
+                    className="block max-h-full max-w-full w-auto h-auto object-contain"
                     loading="lazy"
                   />
                 </div>
