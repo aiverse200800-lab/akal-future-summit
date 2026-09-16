@@ -38,7 +38,7 @@ export default function Navbar() {
           <Link to="/" className="group flex items-center gap-2 text-left">
             <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-summit-charcoal/10 bg-white p-0.5 shadow-sm transition-transform duration-300 group-hover:scale-[1.03]">
               <img
-                src="/40_FD_Logo_new%20copy.png"
+                src={`${import.meta.env.BASE_URL}40_FD_Logo_new.png`}
                 alt="Akal Academy 40th Foundation Day logo"
                 className="h-full w-full object-contain"
               />
@@ -98,7 +98,6 @@ export default function Navbar() {
                   {item.label}
                 </Link>
               ))}
-
             </div>
           </div>
         )}
