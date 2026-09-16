@@ -9,7 +9,7 @@ interface PaymentPageProps {
   onComplete: (record: RegistrationRecord) => void;
 }
 
-const QR_IMAGE = 'https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=20&data=upi%3A%2F%2Fpay%3Fpa%3Dpulkitmangla111-1%40okicici%26pn%3DPulkit%2520Mangla%26aid%3DuGICAgIC_gs7CKg';
+const QR_IMAGE = '/Screenshot_2026-09-13-22-13-26-504_com.android.chrome.jpg';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
