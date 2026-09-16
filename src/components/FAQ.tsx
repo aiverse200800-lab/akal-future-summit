@@ -5,7 +5,6 @@ import { ChevronDown } from 'lucide-react';
 const FAQS = [
   { q: 'Who can join?', a: 'Students from Classes 9–12, including CBSE, ICSE, Cambridge, and IB schools.' },
   { q: 'Do I need a business idea before attending?', a: 'No. Students are guided through problem discovery, ideation, and idea selection.' },
-  { q: 'What does ₹5,000 include?', a: 'Summit kit, food, and 2 nights lodging.' },
   { q: 'What should I bring?', a: 'A charged laptop and charger if available, personal essentials, comfortable clothing, and any school or travel documents required.' },
   { q: 'Can a parent or teacher accompany an outstation student?', a: 'Yes. Outstation participating students can be accompanied by a teacher or parent.' },
   { q: 'Is transportation included?', a: 'Travel to the venue from Chandigarh can be arranged on request. Confirm final transportation terms with the organisers.' },
@@ -22,7 +21,6 @@ export default function FAQ() {
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-3 text-balance">Frequently asked <span className="text-summit-orange-600">questions</span></h2>
           <p className="text-lg text-summit-charcoal/60 mb-10">Everything you need to know before registering.</p>
-
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
               <div key={i} className={`border rounded-xl overflow-hidden transition-all ${openIndex === i ? 'border-summit-orange-300 shadow-md' : 'border-summit-orange-100 hover:border-summit-orange-200'}`}>
