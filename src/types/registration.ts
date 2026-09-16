@@ -8,7 +8,6 @@ export interface RegistrationData {
   school_board: string;
   emergency_contact_name: string;
   emergency_contact_phone: string;
-  dietary_requirements: string;
   accompanied: boolean;
   consent: boolean;
 }
