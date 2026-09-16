@@ -35,10 +35,18 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const tokenHash = bytesToHex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(paymentToken)));
-    const { data: registration, error: lookupError } = await supabase.from('registrations').select('id, registration_ref, payment_status, proof_status').eq('id', registrationId).eq('payment_access_token_hash', tokenHash).maybeSingle();
+    const { data: registration, error: lookupError } = await supabase
+      .from('registrations')
+      .select('id, registration_ref, payment_status, proof_status, registration_status, payment_verified_at, payment_transaction_id')
+      .eq('id', registrationId)
+      .eq('payment_access_token_hash', tokenHash)
+      .maybeSingle();
     if (lookupError) return response({ error: 'Could not verify registration. Please try again.' }, 500);
     if (!registration) return response({ error: 'Registration session is invalid or expired.' }, 403);
-    if (registration.proof_status === 'uploaded' || registration.payment_status === 'proof_submitted') return response({ error: 'Payment proof has already been submitted for this registration.' }, 409);
+    if (registration.payment_status !== 'verified' || registration.registration_status !== 'payment_verified') {
+      return response({ error: 'Payment has not been trusted and verified yet. Payment proof cannot unlock registration.' }, 403);
+    }
+    if (registration.proof_status === 'uploaded') return response({ error: 'Payment proof has already been submitted for this registration.' }, 409);
 
     const originalName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'payment-proof';
     const path = `${registration.registration_ref}/${crypto.randomUUID()}-${originalName}`;
@@ -46,13 +54,20 @@ Deno.serve(async (req: Request) => {
     if (uploadError) return response({ error: 'Payment proof could not be uploaded. Please try again.' }, 500);
 
     const submittedAt = new Date().toISOString();
-    const { error: updateError } = await supabase.from('registrations').update({ payment_proof_path: path, payment_submitted_at: submittedAt, payment_status: 'proof_submitted', proof_status: 'uploaded', registration_status: 'verification_pending' }).eq('id', registrationId).eq('payment_access_token_hash', tokenHash);
+    const completedAt = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from('registrations')
+      .update({ payment_proof_path: path, payment_submitted_at: submittedAt, proof_status: 'uploaded', registration_status: 'completed', completed_at: completedAt })
+      .eq('id', registrationId)
+      .eq('payment_access_token_hash', tokenHash)
+      .eq('payment_status', 'verified')
+      .eq('registration_status', 'payment_verified');
     if (updateError) {
       await supabase.storage.from('payment-proofs').remove([path]);
       return response({ error: 'Payment proof could not be linked to the registration. Please try again.' }, 500);
     }
 
-    return response({ success: true, path, payment_submitted_at: submittedAt });
+    return response({ success: true, path, payment_submitted_at: submittedAt, completed_at: completedAt, payment_transaction_id: registration.payment_transaction_id, payment_verified_at: registration.payment_verified_at });
   } catch (error) {
     console.error('submit-payment-proof error', error);
     return response({ error: error instanceof Error ? error.message : 'Payment proof submission failed.' }, 500);
