@@ -14,8 +14,8 @@ export default function Program() {
           <div className="max-w-5xl space-y-5 text-base text-summit-charcoal/75 leading-relaxed mb-12">
             <p className="font-bold text-summit-charcoal">TWO DAYS | ONE EXPERIENCE | A LIFETIME OF POSSIBILITIES.</p>
             <p>Bringing together aspiring innovators from Grades 9–12 across CBSE, ICSE, Cambridge (CIE) and IB schools of Northern India, the summit is hosted at Akal Academy Baru Sahib, Himachal Pradesh—a setting where learning extends far beyond the classroom.</p>
-            <p>Over two immersive days, participants will have the opportunity to ideate, validate, innovate and pitch their business ideas, working alongside mentors and experts from ISB &amp; AIC, TalentGro Global and Amoeba Team. From identifying real-world problems to shaping solutions, refining business models and pitching ideas, AYFFS takes students through the exciting journey from thought to possibility.</p>
-            <p><strong className="text-summit-charcoal">AYFFS is more than an entrepreneurship summit.</strong><br />It is an opportunity to learn, challenge oneself, build confidence, make new connections and create memories that extend far beyond the two days.</p>
+            <p>Over two immersive days, participants will have the opportunity to ideate, validate, innovate and pitch their business ideas, working alongside mentors and experts from ISB &amp; AIC, TalentGro Global and Amoeba Team. From identifying real-world problems to shaping solutions, refining business models and pitching ideas, AFFS takes students through the exciting journey from thought to possibility.</p>
+            <p><strong className="text-summit-charcoal">AFFS is more than an entrepreneurship summit.</strong><br />It is an opportunity to learn, challenge oneself, build confidence, make new connections and create memories that extend far beyond the two days.</p>
           </div>
           <div className="mt-10">
             <div className="overflow-hidden rounded-2xl border border-summit-orange-100 bg-white p-2 shadow-lg sm:p-3">
