@@ -1,7 +1,6 @@
 import Fee from '@/components/Fee';
 import Participation from '@/components/Participation';
 import Registration from '@/components/Registration';
-import ReachUs from '@/components/ReachUs';
 
 export default function RegisterPage() {
   return (
@@ -9,7 +8,6 @@ export default function RegisterPage() {
       <Fee />
       <Participation />
       <Registration />
-      <ReachUs />
     </div>
   );
 }
