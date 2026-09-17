@@ -1,6 +1,50 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, LogOut } from 'lucide-react';
+import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, Download, ExternalLink, Copy, Check } from 'lucide-react';
 import ImageLightbox from '@/components/ImageLightbox';
+import { Link } from 'react-router-dom';
+
+interface RegistrationRow {
+  registration_ref: string;
+  student_name: string;
+  school_name: string;
+  grade: string;
+  city: string;
+  email: string;
+  phone: string;
+  school_board: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  accompanied: number;
+  consent: number;
+  proof_status: string;
+  payment_proof_path: string | null;
+  created_at: string;
+}
+
+const CODE_KEY = 'affs-admin-code';
+const AUTO_REFRESH_MS = 5 * 60 * 1000;
+const PAGE_SIZE = 50;
+
+function CopyCell({ text, className = '', title }: { text: string; className?: string; title?: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* clipboard unavailable */ }
+  };
+  return (
+    <button
+      onClick={copy}
+      title={title ?? `Click to copy: ${text}`}
+      className={`inline-flex items-center gap-1.5 hover:text-summit-orange-700 transition-colors text-left ${className}`}
+    >
+      <span className="truncate max-w-[180px]">{text}</span>
+      {copied ? <Check className="w-3 h-3 text-green-600 shrink-0" /> : <Copy className="w-3 h-3 opacity-0 group-hover/row:opacity-40 shrink-0" />}
+    </button>
+  );
+}
 
 function ProofThumb({ path, code, onOpen }: { path: string; code: string; onOpen: (src: string) => void }) {
   const [src, setSrc] = useState<string | null>(null);
@@ -23,27 +67,6 @@ function ProofThumb({ path, code, onOpen }: { path: string; code: string; onOpen
   );
 }
 
-interface RegistrationRow {
-  registration_ref: string;
-  student_name: string;
-  school_name: string;
-  grade: string;
-  city: string;
-  email: string;
-  phone: string;
-  school_board: string | null;
-  emergency_contact_name: string | null;
-  emergency_contact_phone: string | null;
-  accompanied: number;
-  consent: number;
-  proof_status: string;
-  payment_proof_path: string | null;
-  created_at: string;
-}
-
-const CODE_KEY = 'affs-admin-code';
-const AUTO_REFRESH_MS = 5 * 60 * 1000;
-
 export default function AdminPage() {
   const [code, setCode] = useState(() => sessionStorage.getItem(CODE_KEY) ?? '');
   const [authed, setAuthed] = useState(!!sessionStorage.getItem(CODE_KEY));
@@ -53,6 +76,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   const timer = useRef<number | null>(null);
 
   const load = useCallback(async (c: string) => {
@@ -112,12 +136,29 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  const proofUrl = (path: string) => `/api/admin/proof?path=${encodeURIComponent(path)}`;
-
-  const openProof = async (path: string) => {
-    const res = await fetch(proofUrl(path), { headers: { 'x-admin-code': code } });
-    setLightboxSrc(URL.createObjectURL(await res.blob()));
+  const exportCsv = () => {
+    const headers = ['Reference ID', 'Student Name', 'School', 'Grade', 'City', 'Email', 'Phone', 'School Board', 'Emergency Contact', 'Emergency Phone', 'Accompanying Adult', 'Consent', 'Proof Status', 'Submitted At'];
+    const esc = (v: string | number | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [
+      headers.join(','),
+      ...rows.map((r) => [
+        r.registration_ref, r.student_name, r.school_name, r.grade, r.city, r.email, r.phone,
+        r.school_board ?? '', r.emergency_contact_name ?? '', r.emergency_contact_phone ?? '',
+        r.accompanied ? 'Yes' : 'No', r.consent ? 'Yes' : 'No', r.proof_status,
+        new Date(r.created_at).toLocaleString(),
+      ].map(esc).join(',')),
+    ];
+    const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `affs-registrations-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const fmt = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   if (!authed) {
     return (
@@ -163,11 +204,24 @@ export default function AdminPage() {
             <h1 className="font-display font-bold text-3xl text-summit-charcoal">Registrations</h1>
             <p className="text-sm text-summit-charcoal/55 mt-1">
               {rows.length} registration{rows.length !== 1 ? 's' : ''}
-              {lastFetched && ` · Updated ${lastFetched.toLocaleTimeString()}`}
-              {' · Auto-refreshes every 5 min'}
+              {lastFetched && ` · Updated ${fmt(lastFetched)}`}
+              {' · Auto-refresh: 5 min'}
             </p>
           </div>
-          <div className="flex gap-2.5">
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 bg-white hover:bg-summit-cream text-summit-charcoal/70 text-sm font-semibold px-5 py-2.5 rounded-xl border border-summit-orange-200 transition-colors duration-150"
+            >
+              <ExternalLink className="w-4 h-4" /> Go to Website
+            </Link>
+            <button
+              onClick={exportCsv}
+              disabled={rows.length === 0}
+              className="inline-flex items-center gap-2 bg-white hover:bg-summit-cream text-summit-charcoal/70 disabled:opacity-50 text-sm font-semibold px-5 py-2.5 rounded-xl border border-summit-orange-200 transition-colors duration-150"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
             <button
               onClick={() => load(code)}
               disabled={loading}
@@ -176,35 +230,29 @@ export default function AdminPage() {
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               Refresh
             </button>
-            <button
-              onClick={() => { sessionStorage.removeItem(CODE_KEY); setAuthed(false); setCode(''); setCodeInput(''); }}
-              className="inline-flex items-center gap-2 bg-white hover:bg-summit-cream text-summit-charcoal/70 text-sm font-semibold px-5 py-2.5 rounded-xl border border-summit-orange-200 transition-colors duration-150"
-            >
-              <LogOut className="w-4 h-4" /> Exit
-            </button>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl border border-summit-orange-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[900px]">
+            <table className="w-full text-sm min-w-[980px]">
               <thead>
                 <tr className="bg-summit-cream border-b border-summit-orange-100 text-left">
-                  {['Ref', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Adult', 'Proof', 'Submitted'].map((h) => (
+                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Adult', 'Proof', 'Submitted'].map((h) => (
                     <th key={h} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-summit-charcoal/55 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-summit-orange-50">
-                {rows.map((r) => (
-                  <tr key={r.registration_ref} className="hover:bg-summit-cream/50 transition-colors">
-                    <td className="px-4 py-3 font-mono font-semibold text-summit-orange-700 whitespace-nowrap">{r.registration_ref}</td>
+                {pageRows.map((r) => (
+                  <tr key={r.registration_ref} className="group/row hover:bg-summit-cream/50 transition-colors">
+                    <td className="px-4 py-3 whitespace-nowrap"><CopyCell text={r.registration_ref} className="font-mono font-semibold text-summit-orange-700" /></td>
                     <td className="px-4 py-3 font-semibold text-summit-charcoal whitespace-nowrap">{r.student_name}</td>
                     <td className="px-4 py-3 text-summit-charcoal/75 max-w-[180px] truncate" title={r.school_name}>{r.school_name}</td>
                     <td className="px-4 py-3 text-summit-charcoal/75 whitespace-nowrap">{r.grade}</td>
                     <td className="px-4 py-3 text-summit-charcoal/75 whitespace-nowrap">{r.city}</td>
-                    <td className="px-4 py-3 text-summit-charcoal/75 max-w-[180px] truncate" title={r.email}>{r.email}</td>
-                    <td className="px-4 py-3 text-summit-charcoal/75 whitespace-nowrap">{r.phone}</td>
+                    <td className="px-4 py-3"><CopyCell text={r.email} className="text-summit-charcoal/75" /></td>
+                    <td className="px-4 py-3"><CopyCell text={r.phone} className="text-summit-charcoal/75 whitespace-nowrap" /></td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.accompanied ? 'bg-blue-50 text-blue-700' : 'bg-summit-charcoal/5 text-summit-charcoal/50'}`}>
                         {r.accompanied ? 'Yes' : 'No'}
@@ -218,16 +266,40 @@ export default function AdminPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-summit-charcoal/55 text-xs whitespace-nowrap">
-                      {new Date(r.created_at).toLocaleString()}
+                      {new Date(r.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                     </td>
                   </tr>
                 ))}
-                {rows.length === 0 && !loading && (
+                {pageRows.length === 0 && !loading && (
                   <tr><td colSpan={10} className="px-4 py-12 text-center text-sm text-summit-charcoal/45">No registrations yet.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-summit-orange-100 bg-summit-cream/50">
+              <span className="text-xs text-summit-charcoal/55">
+                Page {page + 1} of {totalPages} · {rows.length} total
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-summit-orange-200 bg-white text-summit-charcoal/70 disabled:opacity-40 hover:bg-summit-cream transition-colors"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-summit-orange-200 bg-white text-summit-charcoal/70 disabled:opacity-40 hover:bg-summit-cream transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -237,7 +309,7 @@ export default function AdminPage() {
           alt="Payment proof screenshot"
           label="Payment proof preview"
           open={!!lightboxSrc}
-          onClose={() => { URL.revokeObjectURL(lightboxSrc); setLightboxSrc(null); }}
+          onClose={() => setLightboxSrc(null)}
         />
       )}
     </div>
