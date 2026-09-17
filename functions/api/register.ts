@@ -50,15 +50,22 @@ function makeRef(): string {
   return `AFFS-${ref}`;
 }
 
-// Best-effort alert via ntfy.sh — free push notifications. Subscribe to the
-// topic "affs-alerts-a7f3" in the ntfy app or at https://ntfy.sh to receive them.
-async function notifyAdmin(title: string, message: string, priority = 'high'): Promise<void> {
+// Best-effort alerts: email via formsubmit.co (free relay; the recipient must
+// confirm the first message) + push via ntfy.sh topic "affs-alerts-a7f3".
+async function notifyAdmin(title: string, message: string): Promise<void> {
   try {
-    await fetch('https://ntfy.sh/affs-alerts-a7f3', {
-      method: 'POST',
-      headers: { Title: title, Priority: priority, Tags: 'warning' },
-      body: message,
-    });
+    await Promise.allSettled([
+      fetch('https://formsubmit.co/ajax/imrishabh.work@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ _subject: `[AFFS] ${title}`, title, message }),
+      }),
+      fetch('https://ntfy.sh/affs-alerts-a7f3', {
+        method: 'POST',
+        headers: { Title: title, Priority: 'high', Tags: 'warning' },
+        body: message,
+      }),
+    ]);
   } catch { /* notification is best-effort — never fail the request */ }
 }
 
