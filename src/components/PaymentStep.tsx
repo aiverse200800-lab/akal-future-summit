@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, AlertCircle, Upload, CheckCircle, QrCode, X } from 'lucide-react';
-import ImageLightbox from './ImageLightbox';
 
 const QR_SRC = `${import.meta.env.BASE_URL}payment-qr.jpg`;
 
@@ -15,7 +14,6 @@ const MAX_SIZE = 5 * 1024 * 1024;
 export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStepProps) {
   const [file, setFile] = useState<File | null>(initialFile);
   const [error, setError] = useState('');
-  const [qrOpen, setQrOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (f: File | null) => {
@@ -58,16 +56,10 @@ export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStep
       </div>
 
       <div className="flex justify-center mb-6">
-        <button
-          type="button"
-          onClick={() => setQrOpen(true)}
-          className="block bg-white p-3 rounded-2xl border-2 border-summit-orange-100 shadow-sm cursor-zoom-in transition-[border-color,box-shadow] duration-150 hover:border-summit-orange-300 hover:shadow-md focus-visible:ring-2 focus-visible:ring-summit-orange-500 focus-visible:ring-offset-2"
-          aria-label="Open payment QR code in full-size preview"
-        >
+        <div className="bg-white p-3 rounded-2xl border-2 border-summit-orange-100 shadow-sm">
           <img src={QR_SRC} alt="UPI payment QR code for the Akal Future Founders Summit registration fee" className="w-64 h-64 sm:w-72 sm:h-72 object-contain outline outline-1 outline-black/10 rounded-lg" width="288" height="288" />
-        </button>
+        </div>
       </div>
-      <p className="text-center text-xs text-summit-charcoal/45 -mt-3 mb-6">Tap the QR code to enlarge it.</p>
 
       <div>
         <label htmlFor="payment_proof" className="block text-sm font-semibold text-summit-charcoal mb-1.5">
@@ -122,13 +114,6 @@ export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStep
         </button>
       </div>
 
-      <ImageLightbox
-        src={QR_SRC}
-        alt="UPI payment QR code for the Akal Future Founders Summit registration fee, full size"
-        label="Payment QR code preview"
-        open={qrOpen}
-        onClose={() => setQrOpen(false)}
-      />
     </div>
   );
 }

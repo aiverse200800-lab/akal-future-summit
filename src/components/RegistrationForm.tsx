@@ -128,9 +128,9 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
         {/* Honeypot — invisible to humans, catches bots */}
         <input
           type="text"
-          name="company"
-          value={data.company}
-          onChange={(e) => handleChange('company', e.target.value)}
+          name="website"
+          value={data.website}
+          onChange={(e) => handleChange('website', e.target.value)}
           className="hidden"
           tabIndex={-1}
           autoComplete="off"

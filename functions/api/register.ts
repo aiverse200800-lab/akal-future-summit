@@ -72,7 +72,7 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
   const str = (name: string) => (form.get(name) as string | null)?.trim() ?? '';
 
   // Honeypot: bots fill hidden fields, humans never see it. Pretend success.
-  if (str('company')) {
+  if (str('website')) {
     return json({ registration: { registration_ref: 'AFFS-RECEIVED' } });
   }
 

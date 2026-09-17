@@ -18,7 +18,7 @@ export default function Program() {
                 <p>Over two immersive days, participants ideate, validate, innovate and pitch their business ideas, working alongside mentors from <strong className="font-semibold text-summit-charcoal">AIC ISB Mohali, TalentGro Global and the Amoeba team</strong>.</p>
                 <p><strong className="font-semibold text-summit-orange-700">AFFS is more than an entrepreneurship summit</strong> — it's a journey from thought to possibility.</p>
               </div>
-              <Link to="/program" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-summit-orange-600 px-7 py-3.5 text-base font-semibold text-white shadow-md transition-[background-color,box-shadow,transform] duration-150 hover:bg-summit-orange-700 hover:shadow-lg active:scale-[0.97]">Explore the Program <ArrowRight className="w-4 h-4" /></Link>
+              <Link to="/program" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-summit-orange-600 px-7 py-3.5 text-base font-semibold text-white shadow-md transition-[background-color,box-shadow,transform] duration-150 hover:bg-summit-orange-700 hover:shadow-lg active:scale-[0.97]">View Details <ArrowRight className="w-4 h-4" /></Link>
             </div>
             <div className="lg:col-span-7">
               <div className="overflow-hidden rounded-2xl border border-summit-orange-100 bg-white p-2 shadow-lg sm:p-3 lg:sticky lg:top-24">

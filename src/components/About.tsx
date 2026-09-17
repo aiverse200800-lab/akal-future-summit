@@ -13,8 +13,8 @@ export default function About() {
     <section id="about" className="pt-20 pb-6 lg:pt-28 lg:pb-10 bg-summit-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
-            <div className="lg:col-span-5">
+          <div className="grid lg:grid-cols-11 gap-8 lg:gap-14">
+            <div className="lg:col-span-4">
               <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight text-balance mb-6">Where young ideas meet the <span className="text-summit-orange-600">real world.</span></h2>
               <button
                 type="button"
@@ -32,7 +32,7 @@ export default function About() {
                 <p>Away from the familiar classroom environment, participants experience the energy of collaboration while immersing themselves in the natural beauty and unique spirit of <strong className="font-semibold text-summit-charcoal">Baru Sahib</strong>.</p>
                 <p>It is an opportunity to learn, challenge oneself, build confidence, and make new connections — creating memories that extend far beyond the two days.</p>
               </div>
-              <Link to="/program" className="group mt-8 inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]">Explore the Program <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></Link>
+              <Link to="/program" className="group mt-3 inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]">Explore the Program <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></Link>
             </div>
           </div>
         </div>

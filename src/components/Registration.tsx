@@ -21,13 +21,13 @@ export interface FormDataType {
   accompanied: string;
   consent: boolean;
   payment_proof: File | null;
-  company: string;
+  website: string; // honeypot — hidden from real users, bots auto-fill it
 }
 
 const EMPTY_FORM: FormDataType = {
   student_name: '', school_name: '', grade: '', city: '', email: '', phone: '',
   school_board: '', emergency_contact_name: '', emergency_contact_phone: '',
-  accompanied: '', consent: false, payment_proof: null, company: '',
+  accompanied: '', consent: false, payment_proof: null, website: '',
 };
 
 const DRAFT_KEY = 'affs-registration-draft';
