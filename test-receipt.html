@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<body>
+<div id="root"></div>
+<script type="module">
+  import { createElement } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import SuccessStep from '/src/components/SuccessStep.tsx';
+
+  const registration = {
+    id: '12345678-abcd-efgh-ijkl-000000000000',
+    student_name: 'Test Student',
+    school_name: 'Test School',
+    grade: '10',
+    city: 'Test City',
+    email: 'test@example.com',
+    phone: '9876543210',
+    school_board: 'CBSE',
+    emergency_contact_name: 'Parent',
+    emergency_contact_phone: '9876543210',
+    accompanied: false,
+    consent: true,
+    registration_ref: 'AFFS-TEST01',
+    payment_proof_path: 'proofs/AFFS-TEST01.png',
+    created_at: new Date().toISOString(),
+  };
+
+  createRoot(document.getElementById('root')).render(
+    createElement(SuccessStep, { registration })
+  );
+</script>
+</body>
+</html>

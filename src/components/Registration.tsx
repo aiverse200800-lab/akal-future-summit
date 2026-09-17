@@ -88,7 +88,11 @@ export default function Registration() {
       }
       if (formData.payment_proof) body.append('payment_proof', formData.payment_proof);
 
-      const res = await fetch('/api/register', { method: 'POST', body });
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        body,
+        signal: AbortSignal.timeout(45000),
+      });
       const result = await res.json();
       if (!res.ok || !result?.registration) {
         throw new Error(result?.error || 'Failed to save registration. Please try again.');
@@ -99,7 +103,12 @@ export default function Registration() {
       scrollToForm();
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      const isTimeout = err instanceof DOMException && err.name === 'TimeoutError';
+      setError(
+        isTimeout
+          ? 'The request timed out — please check your connection and try again.'
+          : err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      );
       setStep('failure');
     }
   };

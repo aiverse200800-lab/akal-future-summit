@@ -25,6 +25,7 @@ interface Env {
 interface EventContext<E> {
   request: Request;
   env: E;
+  waitUntil(promise: Promise<unknown>): void;
 }
 
 const ALLOWED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg']);
@@ -158,10 +159,10 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
     });
   } catch (err) {
     console.error('R2 upload failed:', err);
-    await notifyAdmin(
+    context.waitUntil(notifyAdmin(
       'AFFS proof upload failed',
       `R2 put failed for ${data.student_name} <${data.email}>: ${err instanceof Error ? err.message : String(err)}`
-    );
+    ));
     return json({ error: 'Failed to save registration. Please try again.' }, 500);
   }
 
@@ -196,10 +197,10 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
         continue;
       }
       console.error('D1 insert failed:', err);
-      await notifyAdmin(
+      context.waitUntil(notifyAdmin(
         'AFFS registration failed',
         `D1 insert failed for ${data.student_name} <${data.email}>: ${err instanceof Error ? err.message : String(err)}`
-      );
+      ));
       try { await context.env.PAYMENT_PROOFS.delete(proofPath); } catch { /* best effort */ }
       return json({ error: 'Failed to save registration. Please try again.' }, 500);
     }
