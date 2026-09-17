@@ -137,7 +137,7 @@ export default function AdminPage() {
   };
 
   const exportCsv = () => {
-    const headers = ['Reference ID', 'Student Name', 'School', 'Grade', 'City', 'Email', 'Phone', 'School Board', 'Emergency Contact', 'Emergency Phone', 'Accompanying Adult', 'Consent', 'Proof Status', 'Submitted At'];
+    const headers = ['Reference ID', 'Student Name', 'School', 'Grade', 'City', 'Email', 'Phone', 'School Board', 'Emergency Contact', 'Emergency Phone', 'Parent/Teacher Accompanying', 'Consent', 'Proof Status', 'Submitted At'];
     const esc = (v: string | number | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const lines = [
       headers.join(','),
@@ -198,7 +198,7 @@ export default function AdminPage() {
 
   return (
     <div className="pt-16 min-h-screen bg-summit-cream">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 py-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-display font-bold text-3xl text-summit-charcoal">Registrations</h1>
@@ -238,7 +238,7 @@ export default function AdminPage() {
             <table className="w-full text-sm min-w-[980px]">
               <thead>
                 <tr className="bg-summit-cream border-b border-summit-orange-100 text-left">
-                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Adult', 'Proof', 'Submitted'].map((h) => (
+                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Parent/Teacher', 'Proof', 'Submitted'].map((h) => (
                     <th key={h} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-summit-charcoal/55 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>

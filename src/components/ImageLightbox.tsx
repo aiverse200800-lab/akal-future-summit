@@ -42,7 +42,7 @@ export default function ImageLightbox({ src, alt, label, open, onClose }: ImageL
       <img
         src={src}
         alt={alt}
-        className="max-h-[80vh] max-w-[92vw] w-auto sm:max-w-lg rounded-xl shadow-2xl animate-scale-in bg-white"
+        className="max-h-[85vh] max-w-[94vw] w-auto sm:max-w-3xl rounded-xl shadow-2xl animate-scale-in bg-white"
         onClick={(e) => e.stopPropagation()}
       />
     </div>
