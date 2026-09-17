@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { MapPin, Plane, Train, Bus, ExternalLink } from 'lucide-react';
+import { MapPin, Plane, Train, Bus, ExternalLink, Navigation } from 'lucide-react';
 
 const TRAVEL_OPTIONS = [
   {
@@ -23,6 +24,7 @@ const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Akal+Academy+B
 
 export default function ReachUs() {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   return (
     <section id="reach" className="py-20 lg:py-28 bg-white relative overflow-hidden">
@@ -66,16 +68,33 @@ export default function ReachUs() {
             </div>
 
             <div className="lg:col-span-7">
-              <div className="rounded-2xl overflow-hidden border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 bg-summit-cream">
-                <iframe
-                  title="Map showing the location of Akal Academy Baru Sahib, Himachal Pradesh"
-                  src="https://www.google.com/maps?q=Akal+Academy+Baru+Sahib,+Himachal+Pradesh&output=embed"
-                  className="w-full h-72 sm:h-80 lg:h-[26rem]"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
-              </div>
+              {mapLoaded ? (
+                <div className="rounded-2xl overflow-hidden border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 bg-summit-cream animate-fade-in">
+                  <iframe
+                    title="Map showing the location of Akal Academy Baru Sahib, Himachal Pradesh"
+                    src="https://www.google.com/maps?q=Akal+Academy+Baru+Sahib,+Himachal+Pradesh&output=embed"
+                    className="w-full h-72 sm:h-80 lg:h-[26rem]"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setMapLoaded(true)}
+                  className="group w-full h-72 sm:h-80 lg:h-[26rem] rounded-2xl border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 bg-gradient-to-br from-summit-cream to-summit-orange-50 flex flex-col items-center justify-center gap-4 transition-colors duration-150 hover:border-summit-orange-300 focus-visible:ring-2 focus-visible:ring-summit-orange-500 focus-visible:ring-offset-2"
+                  aria-label="Load interactive map of Akal Academy Baru Sahib"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-summit-orange-100 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform duration-150">
+                    <Navigation className="w-6 h-6 text-summit-orange-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-summit-charcoal">Akal Academy Baru Sahib, Himachal Pradesh</div>
+                    <div className="text-xs text-summit-charcoal/55 mt-1">Tap to load the interactive map</div>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
         </div>
