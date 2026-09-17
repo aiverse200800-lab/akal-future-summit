@@ -7,7 +7,7 @@ export default function Program() {
   const programImage = `${import.meta.env.BASE_URL}certificate.jpg`;
 
   return (
-    <section id="program" className="py-20 lg:py-28 bg-summit-cream relative overflow-hidden">
+    <section id="program" className="pt-8 pb-20 lg:pt-12 lg:pb-28 bg-summit-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">

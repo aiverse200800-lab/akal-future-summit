@@ -10,7 +10,7 @@ export default function About() {
   const schoolImage = `${import.meta.env.BASE_URL}baru-sahib-location.jpeg`;
 
   return (
-    <section id="about" className="py-20 lg:py-28 bg-summit-cream relative overflow-hidden">
+    <section id="about" className="pt-20 pb-10 lg:pt-28 lg:pb-16 bg-summit-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
