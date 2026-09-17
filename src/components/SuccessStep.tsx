@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 
 import { CheckCircle, Calendar, MapPin, User, School, GraduationCap, Hash, Download, Clock } from 'lucide-react';
@@ -13,7 +13,7 @@ const CHARCOAL: [number, number, number] = [26, 24, 20];
 const ORANGE: [number, number, number] = [234, 88, 12];
 const MUTED: [number, number, number] = [120, 110, 100];
 
-async function downloadReceipt(reg: RegistrationRecord) {
+async function buildReceipt(reg: RegistrationRecord) {
   const { jsPDF } = await import('jspdf');
   const ref = reg.registration_ref || `AFFS-${reg.id.slice(0, 8).toUpperCase()}`;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -100,17 +100,43 @@ async function downloadReceipt(reg: RegistrationRecord) {
   doc.text('Questions? Write to admin@akalacademy.ac.in', margin, doc.internal.pageSize.getHeight() - 44);
   doc.text('© 2026 Akal Future Founders Summit', margin, doc.internal.pageSize.getHeight() - 30);
 
-  doc.save(`AFFS-Receipt-${ref}.pdf`);
+  return { doc, ref };
 }
 
 export default function SuccessStep({ registration }: SuccessStepProps) {
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [receiptFileName, setReceiptFileName] = useState('receipt.pdf');
+  const [receiptError, setReceiptError] = useState(false);
+
   useEffect(() => {
+    // Warm the lazy jspdf chunk so the first Download click doesn't wait on it.
+    import('jspdf').catch(() => { /* optional preload — errors surface on click instead */ });
+
     const defaults = { origin: { y: 0.6 }, colors: CONFETTI_COLORS, disableForReducedMotion: true };
     confetti({ ...defaults, particleCount: 120, spread: 80 });
     const t1 = setTimeout(() => confetti({ ...defaults, particleCount: 60, angle: 60, origin: { x: 0, y: 0.7 } }), 250);
     const t2 = setTimeout(() => confetti({ ...defaults, particleCount: 60, angle: 120, origin: { x: 1, y: 0.7 } }), 450);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
+
+  useEffect(() => () => { if (receiptUrl) URL.revokeObjectURL(receiptUrl); }, [receiptUrl]);
+
+  const handleDownload = async () => {
+    setReceiptError(false);
+    try {
+      const { doc, ref } = await buildReceipt(registration);
+      const fileName = `AFFS-Receipt-${ref}.pdf`;
+      doc.save(fileName);
+      // Some mobile/in-app browsers silently swallow programmatic downloads —
+      // always expose a real link the user can tap as a fallback.
+      if (receiptUrl) URL.revokeObjectURL(receiptUrl);
+      setReceiptUrl(URL.createObjectURL(doc.output('blob')));
+      setReceiptFileName(fileName);
+    } catch (err) {
+      console.error('Receipt generation failed:', err);
+      setReceiptError(true);
+    }
+  };
 
   const details = [
     { icon: User, label: 'Student Name', value: registration.student_name },
@@ -139,7 +165,21 @@ export default function SuccessStep({ registration }: SuccessStepProps) {
           </div>
         </div>
         <div className="mt-6">
-          <button onClick={() => downloadReceipt(registration)} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]"><Download className="w-4 h-4" />Download Receipt</button>
+          <button onClick={handleDownload} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]"><Download className="w-4 h-4" />Download Receipt</button>
+          {receiptUrl && (
+            <a
+              href={receiptUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={receiptFileName}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-summit-orange-700 underline underline-offset-2 hover:text-summit-orange-800"
+            >
+              Download didn't start? Open the receipt
+            </a>
+          )}
+          {receiptError && (
+            <p className="mt-2 text-xs text-red-600">Couldn't generate the receipt. Please try again.</p>
+          )}
         </div>
 
         <div className="mt-8 pt-6 border-t border-summit-orange-100">

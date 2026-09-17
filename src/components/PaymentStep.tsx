@@ -10,13 +10,41 @@ interface PaymentStepProps {
 }
 
 const MAX_SIZE = 5 * 1024 * 1024;
+const COMPRESS_ABOVE = 500 * 1024; // skip compression for already-small files
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.82;
+
+// Downscale + re-encode to JPEG so multi-MB phone screenshots upload quickly.
+async function compressImage(f: File): Promise<File> {
+  if (f.size <= COMPRESS_ABOVE) return f;
+  try {
+    const bitmap = await createImageBitmap(f);
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return f;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
+    if (!blob || blob.size >= f.size) return f;
+    const name = f.name.replace(/\.(png|jpe?g)$/i, '') || 'payment-proof';
+    return new File([blob], `${name}.jpg`, { type: 'image/jpeg' });
+  } catch {
+    return f;
+  }
+}
 
 export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStepProps) {
   const [file, setFile] = useState<File | null>(initialFile);
   const [error, setError] = useState('');
+  const [compressing, setCompressing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (f: File | null) => {
+  const handleFile = async (f: File | null) => {
     setError('');
     if (!f) {
       setFile(null);
@@ -31,10 +59,16 @@ export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStep
       setError('Image must be under 5 MB.');
       return;
     }
-    setFile(f);
+    setCompressing(true);
+    try {
+      setFile(await compressImage(f));
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const handleNext = () => {
+    if (compressing) return;
     if (!file) {
       setError('Please upload your fee screenshot to continue.');
       return;
@@ -84,7 +118,7 @@ export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStep
             className="flex items-center justify-center gap-2 w-full px-4 py-4 rounded-xl border-2 border-dashed border-summit-orange-200 bg-summit-cream/50 text-summit-charcoal/60 text-sm font-medium cursor-pointer transition-colors duration-150 hover:border-summit-orange-400 hover:text-summit-charcoal"
           >
             <Upload className="w-5 h-5" />
-            Upload fee screenshot
+            {compressing ? 'Optimizing image…' : 'Upload fee screenshot'}
           </label>
         )}
         <input
