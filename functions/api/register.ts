@@ -45,7 +45,7 @@ function json(data: unknown, status = 200): Response {
 function makeRef(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let ref = '';
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  const bytes = crypto.getRandomValues(new Uint8Array(3));
   for (const b of bytes) ref += chars[b % chars.length];
   return `AFFS-${ref}`;
 }

@@ -265,8 +265,13 @@ export default function AdminPage() {
                         <span className="text-summit-charcoal/35 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-summit-charcoal/55 text-xs whitespace-nowrap">
-                      {new Date(r.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm font-medium text-summit-charcoal/75">
+                        {new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </div>
+                      <div className="text-xs text-summit-charcoal/45 mt-0.5">
+                        {new Date(r.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase()}
+                      </div>
                     </td>
                   </tr>
                 ))}
