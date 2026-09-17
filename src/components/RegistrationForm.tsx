@@ -16,6 +16,7 @@ interface FormErrors {
   email?: string;
   phone?: string;
   emergency_contact_phone?: string;
+  accompanied?: string;
   consent?: string;
 }
 
@@ -41,12 +42,13 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
       }
       if (!data.phone.trim()) {
         e.phone = 'Phone number is required';
-      } else if (!/^[+]?[\d\s\-()]{10,15}$/.test(data.phone)) {
-        e.phone = 'Please enter a valid phone number';
+      } else if (!/^\d{10}$/.test(data.phone.trim())) {
+        e.phone = 'Please enter a valid 10-digit phone number';
       }
-      if (data.emergency_contact_phone && !/^[+]?[\d\s\-()]{10,15}$/.test(data.emergency_contact_phone)) {
-        e.emergency_contact_phone = 'Please enter a valid phone number';
+      if (data.emergency_contact_phone && !/^\d{10}$/.test(data.emergency_contact_phone.trim())) {
+        e.emergency_contact_phone = 'Please enter a valid 10-digit phone number';
       }
+      if (!data.accompanied) e.accompanied = 'Please select yes or no';
       if (!data.consent) e.consent = 'Please confirm the information is correct';
       return e;
     };
@@ -63,14 +65,17 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
           }
         }
         if (field === 'phone' && tempData.phone) {
-          if (!/^[+]?[\d\s\-()]{10,15}$/.test(tempData.phone)) {
-            newErrors.phone = 'Please enter a valid phone number';
+          if (!/^\d{10}$/.test(tempData.phone.trim())) {
+            newErrors.phone = 'Please enter a valid 10-digit phone number';
           }
         }
         if (field === 'emergency_contact_phone' && tempData.emergency_contact_phone) {
-          if (!/^[+]?[\d\s\-()]{10,15}$/.test(tempData.emergency_contact_phone)) {
-            newErrors.emergency_contact_phone = 'Please enter a valid phone number';
+          if (!/^\d{10}$/.test(tempData.emergency_contact_phone.trim())) {
+            newErrors.emergency_contact_phone = 'Please enter a valid 10-digit phone number';
           }
+        }
+        if (field === 'accompanied' && !tempData.accompanied) {
+          newErrors.accompanied = 'Please select yes or no';
         }
         setErrors(newErrors);
       }
@@ -93,6 +98,7 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
         city: true,
         email: true,
         phone: true,
+        accompanied: true,
         consent: true,
       });
 
@@ -202,7 +208,7 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
             <label htmlFor="phone" className={labelClass}>
               Phone Number <span className="text-summit-orange-600">*</span>
             </label>
-            <input id="phone" type="tel" value={data.phone} onChange={(e) => handleChange('phone', e.target.value)} onBlur={() => handleBlur('phone')} className={inputClass('phone')} placeholder="Enter your phone number" aria-required="true" aria-invalid={!!errors.phone} />
+            <input id="phone" type="tel" inputMode="numeric" maxLength={10} value={data.phone} onChange={(e) => handleChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))} onBlur={() => handleBlur('phone')} className={inputClass('phone')} placeholder="10-digit phone number" aria-required="true" aria-invalid={!!errors.phone} />
             {errors.phone && touched.phone && <div className={errorClass}><AlertCircle className="w-3.5 h-3.5" />{errors.phone}</div>}
           </div>
 
@@ -216,19 +222,24 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
             </select>
           </div>
 
-          <div>
+          <div id="field-accompanied">
             <label className={labelClass}>
-              Teacher / Parent Accompanying?
+              Teacher / Parent Accompanying? <span className="text-summit-orange-600">*</span>
             </label>
-            <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-summit-orange-100 bg-white cursor-pointer transition-colors duration-150 hover:border-summit-orange-300">
-              <input
-                type="checkbox"
-                checked={data.accompanied}
-                onChange={(e) => handleChange('accompanied', e.target.checked)}
-                className="w-5 h-5 rounded border-summit-orange-200 text-summit-orange-600 focus:ring-summit-orange-400 cursor-pointer"
-              />
-              <span className="text-sm text-summit-charcoal/70">Yes, a teacher or parent will accompany the student</span>
-            </label>
+            <div className="flex gap-3">
+              {(['yes', 'no'] as const).map((opt) => (
+                <label key={opt} className="flex-1 flex items-center gap-2.5 px-4 py-3 rounded-xl border border-summit-orange-100 bg-white cursor-pointer transition-colors duration-150 hover:border-summit-orange-300">
+                  <input
+                    type="checkbox"
+                    checked={data.accompanied === opt}
+                    onChange={(e) => handleChange('accompanied', e.target.checked ? opt : '')}
+                    className="w-5 h-5 rounded border-summit-orange-200 text-summit-orange-600 focus:ring-summit-orange-400 cursor-pointer"
+                  />
+                  <span className="text-sm text-summit-charcoal/70 capitalize">{opt}</span>
+                </label>
+              ))}
+            </div>
+            {errors.accompanied && touched.accompanied && <div className={errorClass}><AlertCircle className="w-3.5 h-3.5" />{errors.accompanied}</div>}
           </div>
 
           <div>
@@ -242,7 +253,7 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
             <label htmlFor="emergency_contact_phone" className={labelClass}>
               Emergency Contact Phone <span className="text-summit-charcoal/30 font-normal">(optional)</span>
             </label>
-            <input id="emergency_contact_phone" type="tel" value={data.emergency_contact_phone} onChange={(e) => handleChange('emergency_contact_phone', e.target.value)} onBlur={() => handleBlur('emergency_contact_phone')} className={inputClass('emergency_contact_phone')} placeholder="Enter emergency contact phone" aria-invalid={!!errors.emergency_contact_phone} />
+            <input id="emergency_contact_phone" type="tel" inputMode="numeric" maxLength={10} value={data.emergency_contact_phone} onChange={(e) => handleChange('emergency_contact_phone', e.target.value.replace(/\D/g, '').slice(0, 10))} onBlur={() => handleBlur('emergency_contact_phone')} className={inputClass('emergency_contact_phone')} placeholder="10-digit phone number" aria-invalid={!!errors.emergency_contact_phone} />
             {errors.emergency_contact_phone && touched.emergency_contact_phone && <div className={errorClass}><AlertCircle className="w-3.5 h-3.5" />{errors.emergency_contact_phone}</div>}
           </div>
         </div>

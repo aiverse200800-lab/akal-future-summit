@@ -10,12 +10,11 @@ export default function About() {
   const schoolImage = `${import.meta.env.BASE_URL}baru-sahib-location.jpeg`;
 
   return (
-    <section id="about" className="pt-20 pb-10 lg:pt-28 lg:pb-16 bg-summit-cream relative overflow-hidden">
+    <section id="about" className="pt-20 pb-6 lg:pt-28 lg:pb-10 bg-summit-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
             <div className="lg:col-span-5">
-              <div className="inline-flex items-center rounded-md border border-summit-charcoal/40 bg-white px-3 py-2 text-xs font-medium text-summit-charcoal mb-4">Akal Academy, Baru Sahib<br />In collaboration with AIC ISB Mohali</div>
               <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight text-balance mb-6">Where young ideas meet the <span className="text-summit-orange-600">real world.</span></h2>
               <button
                 type="button"
@@ -27,6 +26,7 @@ export default function About() {
               </button>
             </div>
             <div className="lg:col-span-7">
+              <div className="inline-flex items-center rounded-md border border-summit-charcoal/40 bg-white px-3 py-2 text-xs font-medium text-summit-charcoal mb-5">Akal Academy, Baru Sahib<br />In collaboration with AIC ISB Mohali</div>
               <div className="space-y-4 text-[1.0625rem] text-summit-charcoal/70 leading-[1.8] mb-6">
                 <p>Hosted by the <strong className="font-semibold text-summit-charcoal">AABS Entrepreneurship Club</strong> — a residential IB/Cambridge/CBSE school chain of <strong className="font-semibold text-summit-orange-700">129 academies</strong> rooted in faith and traditions, nestled in the foothills of the Himalayas near Rajgarh, Himachal Pradesh — the summit brings together business mindset, adventure, nature, culture and meaningful connections.</p>
                 <p>Away from the familiar classroom environment, participants experience the energy of collaboration while immersing themselves in the natural beauty and unique spirit of <strong className="font-semibold text-summit-charcoal">Baru Sahib</strong>.</p>

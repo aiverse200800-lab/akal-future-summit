@@ -96,9 +96,9 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
   if (!data.grade) errors.grade = 'Grade is required';
   if (!data.city) errors.city = 'City is required';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = 'Valid email is required';
-  if (!/^[+]?[\d\s\-()]{10,15}$/.test(data.phone)) errors.phone = 'Valid phone number is required';
-  if (data.emergency_contact_phone && !/^[+]?[\d\s\-()]{10,15}$/.test(data.emergency_contact_phone)) {
-    errors.emergency_contact_phone = 'Valid phone number is required';
+  if (!/^\d{10}$/.test(data.phone)) errors.phone = 'Valid 10-digit phone number is required';
+  if (data.emergency_contact_phone && !/^\d{10}$/.test(data.emergency_contact_phone)) {
+    errors.emergency_contact_phone = 'Valid 10-digit phone number is required';
   }
   if (!data.consent) errors.consent = 'Consent is required';
 

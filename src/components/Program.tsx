@@ -7,13 +7,12 @@ export default function Program() {
   const programImage = `${import.meta.env.BASE_URL}certificate.jpg`;
 
   return (
-    <section id="program" className="pt-8 pb-20 lg:pt-12 lg:pb-28 bg-summit-cream relative overflow-hidden">
+    <section id="program" className="pt-6 pb-20 lg:pt-10 lg:pb-28 bg-summit-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             <div className="lg:col-span-5">
-              <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-4 text-balance">Program Flow</h2>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-summit-orange-600 mb-5">Two Days · One Experience · A Lifetime of Possibilities</p>
+              <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-5 text-balance">Program Flow</h2>
               <div className="space-y-4 text-[1.0625rem] text-summit-charcoal/70 leading-[1.8]">
                 <p>Bringing together aspiring innovators from <strong className="font-semibold text-summit-charcoal">Grades 9–12</strong> across CBSE, ICSE, Cambridge (CIE) and IB schools of Northern India — hosted at Akal Academy Baru Sahib, where learning extends far beyond the classroom.</p>
                 <p>Over two immersive days, participants ideate, validate, innovate and pitch their business ideas, working alongside mentors from <strong className="font-semibold text-summit-charcoal">AIC ISB Mohali, TalentGro Global and the Amoeba team</strong>.</p>

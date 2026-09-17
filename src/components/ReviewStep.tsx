@@ -19,7 +19,7 @@ export default function ReviewStep({ data, submitting, onEditDetails, onEditPaym
     { icon: Mail, label: 'Email', value: data.email },
     { icon: Phone, label: 'Phone', value: data.phone },
     { icon: School, label: 'School Board', value: data.school_board || '—' },
-    { icon: Users, label: 'Accompanying Adult', value: data.accompanied ? 'Yes' : 'No' },
+    { icon: Users, label: 'Accompanying Adult', value: data.accompanied === 'yes' ? 'Yes' : 'No' },
     { icon: User, label: 'Emergency Contact', value: data.emergency_contact_name || '—' },
     { icon: Phone, label: 'Emergency Phone', value: data.emergency_contact_phone || '—' },
   ];

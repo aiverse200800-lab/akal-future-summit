@@ -18,7 +18,7 @@ export interface FormDataType {
   school_board: string;
   emergency_contact_name: string;
   emergency_contact_phone: string;
-  accompanied: boolean;
+  accompanied: string;
   consent: boolean;
   payment_proof: File | null;
   company: string;
@@ -27,7 +27,7 @@ export interface FormDataType {
 const EMPTY_FORM: FormDataType = {
   student_name: '', school_name: '', grade: '', city: '', email: '', phone: '',
   school_board: '', emergency_contact_name: '', emergency_contact_phone: '',
-  accompanied: false, consent: false, payment_proof: null, company: '',
+  accompanied: '', consent: false, payment_proof: null, company: '',
 };
 
 const DRAFT_KEY = 'affs-registration-draft';
@@ -83,6 +83,7 @@ export default function Registration() {
       const body = new FormData();
       for (const [key, value] of Object.entries(formData)) {
         if (key === 'payment_proof') continue;
+        if (key === 'accompanied') { body.append('accompanied', String(value === 'yes')); continue; }
         body.append(key, String(value));
       }
       if (formData.payment_proof) body.append('payment_proof', formData.payment_proof);
