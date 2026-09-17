@@ -131,7 +131,7 @@ function receivedEmailHtml(name: string, ref: string): string {
         <tr><td style="padding:8px 0;color:#78716C">Venue</td><td style="padding:8px 0;font-weight:bold">${SUMMIT_VENUE}</td></tr>
       </table>
       <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:#92400E;margin:8px 0 20px">
-        <strong>What happens next:</strong> Our team is verifying your payment proof. Once verified, you will receive a confirmation email from us and your seat will be confirmed. Please note that submission of this form does not by itself confirm a seat.
+        <strong>What happens next:</strong> Our team is verifying your payment proof. Once verified, you will receive a confirmation email from us and your seat will be confirmed.
       </div>
       <a href="${MAPS_URL}" style="display:inline-block;background:#EA580C;color:#fff;text-decoration:none;font-size:14px;font-weight:bold;padding:12px 22px;border-radius:10px;margin:0 0 20px">View Location on Map</a>
       <hr style="border:none;border-top:1px solid #F3E8DB;margin:24px 0"/>
