@@ -6,6 +6,7 @@ import ProgramPage from '@/pages/ProgramPage';
 import RegisterPage from '@/pages/RegisterPage';
 import FAQPage from '@/pages/FAQPage';
 import ScrollToTop from '@/components/ScrollToTop';
+import BackToTop from '@/components/BackToTop';
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -27,6 +28,7 @@ function App() {
         </main>
 
         <Footer />
+        <BackToTop />
       </div>
     </BrowserRouter>
   );

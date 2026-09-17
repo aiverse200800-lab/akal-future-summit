@@ -39,21 +39,6 @@ export default function Day1() {
             Day one takes students from first introductions to a working prototype — discovering problems, generating ideas, and building something tangible.
           </p>
 
-          {/* Image strip */}
-          <div className="relative aspect-[16/5] rounded-2xl overflow-hidden border border-summit-orange-100 shadow-lg mb-12">
-            <img
-              src="https://images.pexels.com/photos/7413910/pexels-photo-7413910.jpeg?auto=compress&cs=tinysrgb&w=1400"
-              alt="A person presenting a startup idea on a whiteboard, emphasizing entrepreneurship"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-summit-charcoal/50 via-summit-charcoal/20 to-transparent" />
-            <div className="absolute bottom-4 left-5 text-white">
-              <div className="text-xs font-semibold text-summit-orange-400 uppercase tracking-wider mb-1">Day 01</div>
-              <div className="font-display font-bold text-lg">Problem to Prototype</div>
-            </div>
-          </div>
-
           {/* Vertical timeline */}
           <div className="relative max-w-3xl mx-auto">
             {/* Timeline line */}

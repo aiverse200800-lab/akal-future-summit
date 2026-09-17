@@ -7,7 +7,7 @@ const IMPACT = [
   { icon: Lightbulb, title: 'Innovation Exposure', desc: 'Students experience real ideation and prototyping.' },
   { icon: FileCheck, title: 'Practical Project Outcomes', desc: 'Tangible prototypes and pitch decks students can showcase.' },
   { icon: MessageSquare, title: 'Communication Development', desc: 'Pitching practice builds confidence and clarity.' },
-  { icon: Briefcase, title: 'Mentor & Industry Exposure', desc: 'Direct access to the ISB AIC and TalentGro ecosystem.' },
+  { icon: Briefcase, title: 'Mentor & Industry Exposure', desc: 'Direct access to the AIC ISB Mohali and TalentGro ecosystem.' },
   { icon: Home, title: 'Residential Learning', desc: 'A memorable two-night immersive experience in the Himalayas.' },
 ];
 

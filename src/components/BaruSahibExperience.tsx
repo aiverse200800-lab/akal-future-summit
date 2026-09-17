@@ -11,26 +11,38 @@ const EXPERIENCES = [
   { icon: Trees, title: 'Spiritual', desc: 'A serene environment for deep thinking' },
 ];
 
+const BASE_URL = import.meta.env.BASE_URL;
+
 const CAROUSEL_IMAGES = [
   {
-    src: 'https://images.pexels.com/photos/12235876/pexels-photo-12235876.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    alt: 'Group of children in school uniforms waving against a mountainous landscape',
-    caption: 'Students at the Akal Academy campus',
-  },
-  {
-    src: 'https://images.pexels.com/photos/32165222/pexels-photo-32165222.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    alt: 'Group of students in uniform standing by the school bulletin board outdoors',
-    caption: 'Campus life at Baru Sahib',
-  },
-  {
-    src: 'https://images.pexels.com/photos/3231358/pexels-photo-3231358.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    alt: 'Indian school students in uniform attentively engaged in classroom learning',
-    caption: 'Learning extends beyond the classroom',
-  },
-  {
-    src: 'https://images.pexels.com/photos/32031273/pexels-photo-32031273.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    alt: 'Dramatic view of the Spiti Valley with towering mountains in Himachal Pradesh',
+    src: `${BASE_URL}scene1-baru-sahib.jpg`,
+    alt: 'Panoramic Himalayan mountain setting at Baru Sahib',
     caption: 'The Himalayan setting of Baru Sahib',
+    tag: 'Himalayan Setting',
+  },
+  {
+    src: `${BASE_URL}scene5-baru-sahib.jpg`,
+    alt: 'Students on the Akal Academy Baru Sahib campus',
+    caption: 'Campus life at Baru Sahib',
+    tag: 'Campus Life',
+  },
+  {
+    src: `${BASE_URL}baru-sahib.jpg`,
+    alt: 'Akal Academy Baru Sahib campus buildings and grounds',
+    caption: 'Akal Academy Baru Sahib campus',
+    tag: 'Campus Life',
+  },
+  {
+    src: `${BASE_URL}scene4-baru-sahib.jpg`,
+    alt: 'Students engaged in activities at Baru Sahib',
+    caption: 'Life and learning beyond the classroom',
+    tag: 'Campus Life',
+  },
+  {
+    src: `${BASE_URL}cadets-baru-sahib.jpg`,
+    alt: 'NCC cadets at Akal Academy Baru Sahib',
+    caption: 'Discipline and character at Baru Sahib',
+    tag: 'Campus Life',
   },
 ];
 
@@ -89,7 +101,7 @@ export default function BaruSahibExperience() {
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10">
                     <div className="text-xs text-summit-orange-300 font-medium uppercase tracking-wider mb-1">
-                      {current === 3 ? 'Himalayan Setting' : 'Campus Life'}
+                      {CAROUSEL_IMAGES[current].tag}
                     </div>
                     <div className="text-sm text-white/80">{CAROUSEL_IMAGES[current].caption}</div>
                   </div>

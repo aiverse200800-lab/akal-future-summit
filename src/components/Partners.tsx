@@ -11,11 +11,11 @@ const PARTNERS = [
     alt: 'Akal Academy Baru Sahib logo',
   },
   {
-    name: 'ISB MOHALI & AIC',
-    role: 'Innovation Ecosystem Partner',
-    desc: 'Connecting future founders to a broader innovation and startup ecosystem through ISB Mohali and the Atal Incubation Centre.',
+    name: 'AIC ISB MOHALI',
+    role: 'Ecosystem Collaborator',
+    desc: 'Connecting future founders to a broader innovation and startup ecosystem through AIC ISB Mohali.',
     logo: `${BASE_URL}image copy 2.png`,
-    alt: 'ISB Mohali and Atal Incubation Centre logo',
+    alt: 'AIC ISB Mohali logo',
   },
   {
     name: 'TALENTGRO GLOBAL',

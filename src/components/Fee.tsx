@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Check, Package, Utensils, BedDouble, Bus, ArrowRight } from 'lucide-react';
 
@@ -17,12 +16,10 @@ export default function Fee() {
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-5">
-              <div className="relative">
-                <div className="relative">
-                  <div className="text-lg text-summit-charcoal/60 font-display font-semibold">
-                    Everything you need for the summit.
-                  </div>
-                </div>
+              <div className="text-xs font-semibold text-summit-charcoal/50 uppercase tracking-widest mb-2">Per Student</div>
+              <div className="font-display font-bold text-6xl sm:text-7xl text-summit-orange-600 leading-none">₹5,000</div>
+              <div className="mt-3 text-lg text-summit-charcoal/60 font-display font-semibold">
+                Everything you need for the summit.
               </div>
             </div>
 
@@ -59,10 +56,10 @@ export default function Fee() {
                   <div className="text-white/80 text-sm">
                     Ready to join? Reserve your seat today.
                   </div>
-                  <Link to="/register" className="group inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <a href="#register" className="group inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white text-sm font-semibold px-5 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]">
                     Register
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

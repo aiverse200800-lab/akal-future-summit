@@ -1,0 +1,12 @@
+name = "akal-future-founders-summit"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "akal-future-founders-summit"
+database_id = "b37b7c94-2297-4494-8c5b-94dc16ca1b35"
+
+[[r2_buckets]]
+binding = "PAYMENT_PROOFS"
+bucket_name = "akal-future-founders-summit"

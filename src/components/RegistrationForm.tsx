@@ -55,7 +55,7 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
       setData((prev: FormDataType) => ({ ...prev, [field]: value }));
       if (touched[field as string]) {
         const newErrors = { ...errors };
-        delete (newErrors as any)[field];
+        delete newErrors[field as keyof FormErrors];
         const tempData = { ...data, [field]: value };
         if (field === 'email' && tempData.email) {
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempData.email)) {
@@ -107,7 +107,7 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
 
     const inputClass = (field: string) => `
       w-full px-4 py-3 rounded-xl border bg-white text-summit-charcoal text-sm
-      transition-all outline-none
+      transition-[border-color,box-shadow] duration-150 outline-none
       ${errors[field as keyof FormErrors] && touched[field]
         ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100'
         : 'border-summit-orange-100 focus:border-summit-orange-400 focus:ring-2 focus:ring-summit-orange-100'
@@ -119,6 +119,17 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
 
     return (
       <form ref={ref} onSubmit={handleSubmit} noValidate className="bg-white rounded-2xl border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 p-6 lg:p-8">
+        {/* Honeypot — invisible to humans, catches bots */}
+        <input
+          type="text"
+          name="company"
+          value={data.company}
+          onChange={(e) => handleChange('company', e.target.value)}
+          className="hidden"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        />
         <div className="grid sm:grid-cols-2 gap-5">
           <div id="field-student_name">
             <label htmlFor="student_name" className={labelClass}>
@@ -207,12 +218,17 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
 
           <div>
             <label className={labelClass}>
-              Teacher / Parent Accompanying? <span className="text-summit-orange-600">*</span>
+              Teacher / Parent Accompanying?
             </label>
-            <div className="flex gap-3 mt-1">
-              <button type="button" onClick={() => handleChange('accompanied', true)} className={`flex-1 px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${data.accompanied ? 'bg-summit-orange-600 text-white border-summit-orange-600' : 'bg-white text-summit-charcoal/70 border-summit-orange-100 hover:border-summit-orange-300'}`}>Yes</button>
-              <button type="button" onClick={() => handleChange('accompanied', false)} className={`flex-1 px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${!data.accompanied ? 'bg-summit-orange-600 text-white border-summit-orange-600' : 'bg-white text-summit-charcoal/70 border-summit-orange-100 hover:border-summit-orange-300'}`}>No</button>
-            </div>
+            <label className="flex items-center gap-3 px-4 py-3 rounded-xl border border-summit-orange-100 bg-white cursor-pointer transition-colors duration-150 hover:border-summit-orange-300">
+              <input
+                type="checkbox"
+                checked={data.accompanied}
+                onChange={(e) => handleChange('accompanied', e.target.checked)}
+                className="w-5 h-5 rounded border-summit-orange-200 text-summit-orange-600 focus:ring-summit-orange-400 cursor-pointer"
+              />
+              <span className="text-sm text-summit-charcoal/70">Yes, a teacher or parent will accompany the student</span>
+            </label>
           </div>
 
           <div>
@@ -239,14 +255,10 @@ const RegistrationForm = forwardRef<HTMLFormElement, RegistrationFormProps>(
           {errors.consent && touched.consent && <div className={errorClass}><AlertCircle className="w-3.5 h-3.5" />{errors.consent}</div>}
         </div>
 
-        <button type="submit" className="group w-full mt-7 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-base px-6 py-4 rounded-xl transition-all hover:shadow-xl hover:shadow-summit-orange-500/25 hover:scale-[1.01] active:scale-[0.99]">
+        <button type="submit" className="group w-full mt-7 inline-flex items-center justify-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-base px-6 py-4 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-xl hover:shadow-summit-orange-500/25 active:scale-[0.97]">
           Continue to Payment
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
-
-        <p className="text-center text-xs text-summit-charcoal/40 mt-3">
-          Following up with Mr. Sushil for the Payment URL
-        </p>
       </form>
     );
   }

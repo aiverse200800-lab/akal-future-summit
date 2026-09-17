@@ -9,7 +9,7 @@ const PRESENTATION = [
 ];
 
 const CRITERIA = [
-  { label: 'Clarity', desc: 'Is the problem and solution easy to understand?', icon: Eye },
+  { label: 'Clarity', desc: 'Are the problem and solution easy to understand?', icon: Eye },
   { label: 'Innovation', desc: 'Does the idea offer a fresh or thoughtful approach?', icon: Zap },
   { label: 'Feasibility', desc: 'Could the solution realistically be built, tested, or used?', icon: Feasibility },
   { label: 'Confidence', desc: 'Can the team communicate the idea with conviction?', icon: Shield },
@@ -21,7 +21,7 @@ export default function FinalJuryShowcase() {
   return (
     <section id="showcase" className="py-20 lg:py-28 bg-summit-charcoal text-white relative overflow-hidden">
       {/* Decorative orange glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-summit-orange-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-summit-orange-600/10 rounded-full blur-3xl pointer-events-none hidden sm:block" />
 
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>

@@ -1,4 +1,0 @@
-project_id = ""
-
-[functions.send-registration-email]
-verify_jwt = false

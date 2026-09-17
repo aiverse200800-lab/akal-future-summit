@@ -38,21 +38,6 @@ export default function Day2() {
             Day two transforms ideas into polished presentations. Students refine their concept, use AI-assisted building tools, create a basic brand identity, plan a launch strategy, and take the main stage.
           </p>
 
-          {/* Image strip */}
-          <div className="relative aspect-[16/5] rounded-2xl overflow-hidden border border-summit-orange-100 shadow-lg mb-12">
-            <img
-              src="https://images.pexels.com/photos/7413913/pexels-photo-7413913.jpeg?auto=compress&cs=tinysrgb&w=1400"
-              alt="A woman presenting business growth charts during a startup pitch"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-summit-charcoal/50 via-summit-charcoal/20 to-transparent" />
-            <div className="absolute bottom-4 left-5 text-white">
-              <div className="text-xs font-semibold text-summit-orange-400 uppercase tracking-wider mb-1">Day 02</div>
-              <div className="font-display font-bold text-lg">Build, Brand & Pitch</div>
-            </div>
-          </div>
-
           {/* Horizontal stage cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {STAGES.map((stage, i) => (
@@ -65,7 +50,7 @@ export default function Day2() {
                   <div className="w-10 h-10 rounded-lg bg-summit-orange-50 flex items-center justify-center group-hover:bg-summit-orange-100 transition-colors">
                     <stage.icon className="w-5 h-5 text-summit-orange-600" />
                   </div>
-                  <span className="font-display font-bold text-2xl text-summit-orange-100 group-hover:text-summit-orange-200 transition-colors">
+                  <span className="font-display font-bold text-2xl text-summit-orange-600">
                     {stage.num}
                   </span>
                 </div>

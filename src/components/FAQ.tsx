@@ -20,7 +20,10 @@ export default function FAQ() {
       <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''}`}>
           <h2 className="font-display font-bold text-4xl sm:text-5xl text-summit-charcoal leading-tight mb-3 text-balance">Frequently asked <span className="text-summit-orange-600">questions</span></h2>
-          <p className="text-lg text-summit-charcoal/60 mb-10">Everything you need to know before registering.</p>
+          <p className="text-lg text-summit-charcoal/60 mb-8">Everything you need to know before registering.</p>
+          <div className="rounded-2xl overflow-hidden border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 mb-10 bg-summit-cream">
+            <img src={`${import.meta.env.BASE_URL}scene2-baru-sahib.jpg`} alt="Akal Academy Baru Sahib campus in the Himalayan foothills" className="w-full h-48 sm:h-56 object-cover" loading="lazy" />
+          </div>
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
               <div key={i} className={`border rounded-xl overflow-hidden transition-all ${openIndex === i ? 'border-summit-orange-300 shadow-md' : 'border-summit-orange-100 hover:border-summit-orange-200'}`}>

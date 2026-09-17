@@ -32,7 +32,7 @@ export default {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'scale-in': 'scaleIn 0.4s ease-out forwards',
         'slide-down': 'slideDown 0.3s ease-out forwards',
-        'marquee': 'marquee 30s linear infinite',
+        'marquee': 'marquee 18s linear infinite',
       },
       keyframes: {
         fadeUp: {
