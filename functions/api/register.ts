@@ -61,6 +61,39 @@ async function notifyAdmin(title: string, message: string, priority = 'high'): P
   } catch { /* notification is best-effort — never fail the request */ }
 }
 
+// Common domain misspellings → correct domain (only fix what is clearly a typo)
+const DOMAIN_FIXES: Record<string, string> = {
+  'gamil.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmial.com': 'gmail.com',
+  'gmaill.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.co.in': 'gmail.com',
+  'gmail.cm': 'gmail.com', 'gmail.om': 'gmail.com', 'gmail.con': 'gmail.com',
+  'gmalil.com': 'gmail.com', 'gmil.com': 'gmail.com', 'gimail.com': 'gmail.com',
+  'ggmail.com': 'gmail.com', 'gmai.com': 'gmail.com',
+  'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yahho.com': 'yahoo.com',
+  'yahoo.co': 'yahoo.com', 'yaho.co.in': 'yahoo.co.in', 'ymail.co': 'ymail.com',
+  'hotmial.com': 'hotmail.com', 'hotmal.com': 'hotmail.com', 'hotmali.com': 'hotmail.com',
+  'hotmail.co': 'hotmail.com', 'hotmail.cm': 'hotmail.com', 'hotmeil.com': 'hotmail.com',
+  'outlok.com': 'outlook.com', 'outloook.com': 'outlook.com', 'outook.com': 'outlook.com',
+  'outlook.co': 'outlook.com', 'outlook.cm': 'outlook.com', 'outlook.con': 'outlook.com',
+  'iclod.com': 'icloud.com', 'iclud.com': 'icloud.com', 'icloud.co': 'icloud.com',
+  'redifmail.com': 'rediffmail.com', 'rediffmil.com': 'rediffmail.com', 'redifmail.co.in': 'rediffmail.com',
+};
+
+function normalizeEmail(raw: string): string {
+  let email = raw.trim().toLowerCase();
+  // If user typed a stray "@" inside (e.g. abc@theite@gamil.com), keep the part
+  // after the LAST "@" as the domain and the first part as the local name.
+  const parts = email.split('@');
+  if (parts.length > 2) {
+    email = `${parts[0]}@${parts[parts.length - 1]}`;
+  }
+  const at = email.indexOf('@');
+  if (at === -1) return email;
+  const local = parts.length > 2 ? parts.slice(0, -1).join('') : email.slice(0, at);
+  const domain = email.slice(at + 1);
+  const fixed = DOMAIN_FIXES[domain] ?? domain;
+  return `${local}@${fixed}`;
+}
+
 export async function onRequestPost(context: EventContext<Env>): Promise<Response> {
   let form: FormData;
   try {
@@ -81,7 +114,7 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
     school_name: str('school_name'),
     grade: str('grade'),
     city: str('city'),
-    email: str('email'),
+    email: normalizeEmail(str('email')),
     phone: str('phone'),
     school_board: str('school_board'),
     emergency_contact_name: str('emergency_contact_name'),

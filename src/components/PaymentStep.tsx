@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, AlertCircle, Upload, CheckCircle, QrCode, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertCircle, Upload, CheckCircle, X } from 'lucide-react';
 
 const QR_SRC = `${import.meta.env.BASE_URL}payment-qr.jpg`;
 
@@ -45,9 +45,6 @@ export default function PaymentStep({ initialFile, onBack, onNext }: PaymentStep
   return (
     <div className="bg-white rounded-2xl border border-summit-orange-100 shadow-lg shadow-summit-orange-900/5 p-6 lg:p-8 animate-scale-in">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-summit-orange-50 border border-summit-orange-100 mb-3">
-          <QrCode className="w-6 h-6 text-summit-orange-600" />
-        </div>
         <h3 className="font-display font-bold text-xl text-summit-charcoal mb-1">Pay the Registration Fee</h3>
         <ol className="mt-4 text-left text-sm text-summit-charcoal/65 space-y-1.5 max-w-xs mx-auto">
           <li className="flex gap-2.5"><span className="shrink-0 w-5 h-5 rounded-full bg-summit-orange-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>Scan &amp; pay via any UPI app.</li>

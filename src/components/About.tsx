@@ -32,7 +32,7 @@ export default function About() {
                 <p>Away from the familiar classroom environment, participants experience the energy of collaboration while immersing themselves in the natural beauty and unique spirit of <strong className="font-semibold text-summit-charcoal">Baru Sahib</strong>.</p>
                 <p>It is an opportunity to learn, challenge oneself, build confidence, and make new connections — creating memories that extend far beyond the two days.</p>
               </div>
-              <Link to="/program" className="group mt-3 inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]">Explore the Program <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></Link>
+              <Link to="/program" className="group mt-3 inline-flex items-center gap-2 bg-summit-orange-600 hover:bg-summit-orange-700 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-[background-color,box-shadow,transform] duration-150 hover:shadow-lg active:scale-[0.97]">View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></Link>
             </div>
           </div>
         </div>
