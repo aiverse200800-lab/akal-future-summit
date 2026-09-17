@@ -5,6 +5,7 @@ import HomePage from '@/pages/HomePage';
 import ProgramPage from '@/pages/ProgramPage';
 import RegisterPage from '@/pages/RegisterPage';
 import FAQPage from '@/pages/FAQPage';
+import AdminPage from '@/pages/AdminPage';
 import ScrollToTop from '@/components/ScrollToTop';
 import BackToTop from '@/components/BackToTop';
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/program" element={<ProgramPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/faq" element={<FAQPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </main>
 
