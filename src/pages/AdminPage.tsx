@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, Download, ExternalLink, Copy, Check, Trash2, CheckCircle2, XCircle, X } from 'lucide-react';
+import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, Download, ExternalLink, Copy, Check, Trash2, CheckCircle2, XCircle, X, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface RegistrationRow {
@@ -86,6 +86,8 @@ export default function AdminPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState<null | 'ask' | 'sure'>(null);
   const [page, setPage] = useState(0);
+  const [sortKey, setSortKey] = useState<'created_at' | 'registration_ref' | 'student_name' | 'school_name' | 'accompanied'>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const timer = useRef<number | null>(null);
 
   const load = useCallback(async (c: string) => {
@@ -208,8 +210,21 @@ export default function AdminPage() {
     });
   };
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const toggleSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortKey(key); setSortDir(key === 'created_at' ? 'desc' : 'asc'); }
+  };
+
+  const sortedRows = [...rows].sort((a, b) => {
+    const av = a[sortKey] ?? '';
+    const bv = b[sortKey] ?? '';
+    const cmp = typeof av === 'number' && typeof bv === 'number'
+      ? av - bv
+      : String(av).localeCompare(String(bv));
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE));
+  const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const allSelected = pageRows.length > 0 && pageRows.every((r) => selected.has(r.registration_ref));
   const fmt = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const lightboxRow = rows.find((r) => r.registration_ref === lightboxRef);
@@ -309,8 +324,34 @@ export default function AdminPage() {
                       aria-label="Select all on this page"
                     />
                   </th>
-                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Parent/Teacher', 'Status', 'Proof', 'Submitted'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-summit-charcoal/55 whitespace-nowrap">{h}</th>
+                  {(
+                    [
+                      { label: 'Reference ID', key: 'registration_ref' },
+                      { label: 'Student', key: 'student_name' },
+                      { label: 'School', key: 'school_name' },
+                      { label: 'Grade' },
+                      { label: 'City' },
+                      { label: 'Email' },
+                      { label: 'Phone' },
+                      { label: 'Parent/Teacher', key: 'accompanied' },
+                      { label: 'Status' },
+                      { label: 'Proof' },
+                      { label: 'Submitted', key: 'created_at' },
+                    ] as { label: string; key?: typeof sortKey }[]
+                  ).map((h) => (
+                    <th key={h.label} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-summit-charcoal/55 whitespace-nowrap">
+                      {h.key ? (
+                        <button
+                          onClick={() => toggleSort(h.key!)}
+                          className="inline-flex items-center gap-1 hover:text-summit-orange-600 transition-colors"
+                        >
+                          {h.label}
+                          {sortKey === h.key
+                            ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)
+                            : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                        </button>
+                      ) : h.label}
+                    </th>
                   ))}
                 </tr>
               </thead>
