@@ -5,6 +5,7 @@
 interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
   first<T = unknown>(): Promise<T | null>;
+  all<T = unknown>(): Promise<{ results: T[] }>;
   run(): Promise<unknown>;
 }
 
@@ -13,13 +14,15 @@ interface D1Database {
 }
 
 interface R2Bucket {
-  put(key: string, value: ArrayBuffer | ReadableStream, options?: { httpMetadata?: { contentType?: string } }): Promise<unknown>;
+  put(key: string, value: ArrayBuffer | ReadableStream | string, options?: { httpMetadata?: { contentType?: string } }): Promise<unknown>;
   delete(key: string): Promise<unknown>;
+  get(key: string): Promise<{ text(): Promise<string> } | null>;
 }
 
 interface Env {
   DB: D1Database;
   PAYMENT_PROOFS: R2Bucket;
+  RESEND_API_KEY: string;
 }
 
 interface EventContext<E> {
@@ -100,6 +103,90 @@ function normalizeEmail(raw: string): string {
   const domain = email.slice(at + 1);
   const fixed = DOMAIN_FIXES[domain] ?? domain;
   return `${local}@${fixed}`;
+}
+
+const SUMMIT_DATES = '22–23 October 2026';
+const SUMMIT_VENUE = 'Akal Academy, Baru Sahib, Himachal Pradesh';
+const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Akal+Academy+Baru+Sahib+Himachal+Pradesh';
+const SUPPORT_EMAIL = 'admin@akalacademy.ac.in';
+const SUPPORT_PHONE = '+91 99976 88579';
+const SUPPORT_NAME = 'Kulpreet Kaur';
+
+function receivedEmailHtml(name: string, ref: string): string {
+  return `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#FAF7F2;font-family:Arial,Helvetica,sans-serif;color:#292524">
+  <div style="max-width:560px;margin:0 auto;padding:24px">
+    <div style="background:#EA580C;border-radius:16px 16px 0 0;padding:28px 32px;color:#fff">
+      <div style="font-size:11px;letter-spacing:2px;opacity:.85;text-transform:uppercase">Registration Received</div>
+      <div style="font-size:22px;font-weight:bold;margin-top:6px">Akal Future Founders Summit</div>
+      <div style="font-size:13px;margin-top:4px;opacity:.9">${SUMMIT_DATES} · 9:00 AM – 5:00 PM</div>
+    </div>
+    <div style="background:#fff;padding:28px 32px;border:1px solid #F3E8DB;border-top:none;border-radius:0 0 16px 16px">
+      <p style="margin:0 0 16px;font-size:15px">Dear ${name},</p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.7">Thank you for registering for the <strong>Akal Future Founders Summit</strong>. We have received your registration and payment screenshot.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin:16px 0">
+        <tr><td style="padding:8px 0;color:#78716C;width:40%">Registration ID</td><td style="padding:8px 0;font-weight:bold">${ref}</td></tr>
+        <tr><td style="padding:8px 0;color:#78716C">Dates</td><td style="padding:8px 0;font-weight:bold">${SUMMIT_DATES}</td></tr>
+        <tr><td style="padding:8px 0;color:#78716C">Timings</td><td style="padding:8px 0;font-weight:bold">9:00 AM – 5:00 PM (both days)</td></tr>
+        <tr><td style="padding:8px 0;color:#78716C">Venue</td><td style="padding:8px 0;font-weight:bold">${SUMMIT_VENUE}</td></tr>
+      </table>
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:#92400E;margin:8px 0 20px">
+        <strong>What happens next:</strong> Our team is verifying your payment proof. Once verified, you will receive a confirmation email from us and your seat will be confirmed. Please note that submission of this form does not by itself confirm a seat.
+      </div>
+      <a href="${MAPS_URL}" style="display:inline-block;background:#EA580C;color:#fff;text-decoration:none;font-size:14px;font-weight:bold;padding:12px 22px;border-radius:10px;margin:0 0 20px">View Location on Map</a>
+      <hr style="border:none;border-top:1px solid #F3E8DB;margin:24px 0"/>
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#44403C">
+        Regards,<br/>
+        <strong>${SUPPORT_NAME}</strong><br/>
+        Registration Desk, Akal Future Founders Summit<br/>
+        <a href="mailto:${SUPPORT_EMAIL}" style="color:#EA580C;text-decoration:none">${SUPPORT_EMAIL}</a><br/>
+        <a href="tel:${SUPPORT_PHONE.replace(/\s/g, '')}" style="color:#EA580C;text-decoration:none">${SUPPORT_PHONE}</a>
+      </p>
+    </div>
+    <p style="font-size:11px;color:#A8A29E;text-align:center;margin:16px 0 0">Akal Academy Baru Sahib — 40th Foundation Day · In collaboration with AIC ISB Mohali</p>
+  </div>
+</body></html>`;
+}
+
+async function sendReceivedEmail(env: Env, to: string, name: string, ref: string): Promise<void> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Akal Future Founders Summit <admin@akalfuturefounders.talentg.io>',
+      to: [to],
+      subject: `Registration Received — Akal Future Founders Summit (${ref})`,
+      html: receivedEmailHtml(name, ref),
+    }),
+  });
+  if (!res.ok) {
+    console.error('Resend received-email failed:', res.status, await res.text());
+  }
+}
+
+// Self-driving backup: on each registration request, if the last backup is
+// older than 5 hours, dump the registrations table to R2. Cheap for small
+// tables; keeps backups flowing without a separate worker.
+const BACKUP_INTERVAL_MS = 5 * 60 * 60 * 1000;
+
+async function maybeBackup(env: Env): Promise<void> {
+  try {
+    const marker = await env.PAYMENT_PROOFS.get('backups/.last-backup');
+    const last = marker ? Number(await marker.text()) : 0;
+    if (Date.now() - last < BACKUP_INTERVAL_MS) return;
+
+    const rows = await env.DB.prepare('SELECT * FROM registrations').all();
+    const stamp = new Date().toISOString().slice(0, 10);
+    await env.PAYMENT_PROOFS.put(`backups/registrations-${stamp}.json`, JSON.stringify(rows.results ?? []), {
+      httpMetadata: { contentType: 'application/json' },
+    });
+    await env.PAYMENT_PROOFS.put('backups/.last-backup', String(Date.now()), {
+      httpMetadata: { contentType: 'text/plain' },
+    });
+  } catch { /* backup is best-effort */ }
 }
 
 export async function onRequestPost(context: EventContext<Env>): Promise<Response> {
@@ -214,6 +301,9 @@ export async function onRequestPost(context: EventContext<Env>): Promise<Respons
   }
 
   console.log(`Registration saved: ${registrationRef} (${data.student_name} <${data.email}>)`);
+
+  context.waitUntil(sendReceivedEmail(context.env, data.email, data.student_name, registrationRef));
+  context.waitUntil(maybeBackup(context.env));
 
   return json({
     registration: {
