@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, Download, ExternalLink, Copy, Check } from 'lucide-react';
-import ImageLightbox from '@/components/ImageLightbox';
+import { Lock, RefreshCw, Loader2, FileImage, ShieldAlert, Download, ExternalLink, Copy, Check, Trash2, CheckCircle2, XCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface RegistrationRow {
@@ -24,6 +23,12 @@ interface RegistrationRow {
 const CODE_KEY = 'affs-admin-code';
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 const PAGE_SIZE = 50;
+
+const STATUS_STYLES: Record<string, string> = {
+  submitted: 'bg-amber-50 text-amber-700',
+  verified: 'bg-green-50 text-green-700',
+  rejected: 'bg-red-50 text-red-700',
+};
 
 function CopyCell({ text, className = '', title }: { text: string; className?: string; title?: string }) {
   const [copied, setCopied] = useState(false);
@@ -68,14 +73,18 @@ function ProofThumb({ path, code, onOpen }: { path: string; code: string; onOpen
 }
 
 export default function AdminPage() {
-  const [code, setCode] = useState(() => sessionStorage.getItem(CODE_KEY) ?? '');
-  const [authed, setAuthed] = useState(!!sessionStorage.getItem(CODE_KEY));
+  const [code, setCode] = useState(() => localStorage.getItem(CODE_KEY) ?? '');
+  const [authed, setAuthed] = useState(!!localStorage.getItem(CODE_KEY));
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState('');
   const [rows, setRows] = useState<RegistrationRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxRef, setLightboxRef] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmDelete, setConfirmDelete] = useState<null | 'ask' | 'sure'>(null);
   const [page, setPage] = useState(0);
   const timer = useRef<number | null>(null);
 
@@ -87,13 +96,13 @@ export default function AdminPage() {
       });
       if (res.status === 401) {
         setAuthed(false);
-        sessionStorage.removeItem(CODE_KEY);
+        localStorage.removeItem(CODE_KEY);
         setCodeError('Invalid access code.');
         return;
       }
       if (res.status === 429) {
         setAuthed(false);
-        sessionStorage.removeItem(CODE_KEY);
+        localStorage.removeItem(CODE_KEY);
         setCodeError('Too many attempts. Please try again in a few minutes.');
         return;
       }
@@ -128,7 +137,7 @@ export default function AdminPage() {
     if (res.status === 401) { setCodeError('Invalid access code.'); setLoading(false); return; }
     if (res.status === 429) { setCodeError('Too many attempts. Please try again in a few minutes.'); setLoading(false); return; }
     const data = await res.json();
-    sessionStorage.setItem(CODE_KEY, c);
+    localStorage.setItem(CODE_KEY, c);
     setCode(c);
     setRows(data.registrations ?? []);
     setLastFetched(new Date());
@@ -136,12 +145,47 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  const exportCsv = () => {
+  const openProof = (row: RegistrationRow, src: string) => {
+    setLightboxSrc(src);
+    setLightboxRef(row.registration_ref);
+  };
+
+  const setStatus = async (ref: string, status: 'verified' | 'rejected') => {
+    setActionBusy(`${ref}:${status}`);
+    try {
+      const res = await fetch('/api/admin/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-code': code },
+        body: JSON.stringify({ ref, status }),
+      });
+      if (res.ok) {
+        setRows((prev) => prev.map((r) => (r.registration_ref === ref ? { ...r, proof_status: status } : r)));
+      }
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
+  const bulkDelete = async () => {
+    const refs = [...selected];
+    const res = await fetch('/api/admin/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-code': code },
+      body: JSON.stringify({ refs }),
+    });
+    if (res.ok) {
+      setRows((prev) => prev.filter((r) => !selected.has(r.registration_ref)));
+      setSelected(new Set());
+      setConfirmDelete(null);
+    }
+  };
+
+  const exportCsv = (list: RegistrationRow[], name: string) => {
     const headers = ['Reference ID', 'Student Name', 'School', 'Grade', 'City', 'Email', 'Phone', 'School Board', 'Emergency Contact', 'Emergency Phone', 'Parent/Teacher Accompanying', 'Consent', 'Proof Status', 'Submitted At'];
     const esc = (v: string | number | null) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const lines = [
       headers.join(','),
-      ...rows.map((r) => [
+      ...list.map((r) => [
         r.registration_ref, r.student_name, r.school_name, r.grade, r.city, r.email, r.phone,
         r.school_board ?? '', r.emergency_contact_name ?? '', r.emergency_contact_phone ?? '',
         r.accompanied ? 'Yes' : 'No', r.consent ? 'Yes' : 'No', r.proof_status,
@@ -151,14 +195,24 @@ export default function AdminPage() {
     const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `affs-registrations-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = name;
     a.click();
     URL.revokeObjectURL(a.href);
   };
 
+  const toggle = (ref: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(ref)) next.delete(ref); else next.add(ref);
+      return next;
+    });
+  };
+
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const allSelected = pageRows.length > 0 && pageRows.every((r) => selected.has(r.registration_ref));
   const fmt = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const lightboxRow = rows.find((r) => r.registration_ref === lightboxRef);
 
   if (!authed) {
     return (
@@ -216,12 +270,20 @@ export default function AdminPage() {
               <ExternalLink className="w-4 h-4" /> Go to Website
             </Link>
             <button
-              onClick={exportCsv}
+              onClick={() => exportCsv(selected.size ? rows.filter((r) => selected.has(r.registration_ref)) : rows, `affs-registrations-${new Date().toISOString().slice(0, 10)}.csv`)}
               disabled={rows.length === 0}
               className="inline-flex items-center gap-2 bg-white hover:bg-summit-cream text-summit-charcoal/70 disabled:opacity-50 text-sm font-semibold px-5 py-2.5 rounded-xl border border-summit-orange-200 transition-colors duration-150"
             >
-              <Download className="w-4 h-4" /> Export CSV
+              <Download className="w-4 h-4" /> {selected.size ? `Export ${selected.size}` : 'Export All'}
             </button>
+            {selected.size > 0 && (
+              <button
+                onClick={() => setConfirmDelete('ask')}
+                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors duration-150 active:scale-[0.97]"
+              >
+                <Trash2 className="w-4 h-4" /> Delete {selected.size}
+              </button>
+            )}
             <button
               onClick={() => load(code)}
               disabled={loading}
@@ -235,17 +297,35 @@ export default function AdminPage() {
 
         <div className="bg-white rounded-2xl border border-summit-orange-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[980px]">
+            <table className="w-full text-sm min-w-[1080px]">
               <thead>
                 <tr className="bg-summit-cream border-b border-summit-orange-100 text-left">
-                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Parent/Teacher', 'Proof', 'Submitted'].map((h) => (
+                  <th className="px-4 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={() => setSelected(allSelected ? new Set([...selected].filter((r) => !pageRows.some((p) => p.registration_ref === r))) : new Set([...selected, ...pageRows.map((r) => r.registration_ref)]))}
+                      className="w-4 h-4 rounded border-summit-orange-200 text-summit-orange-600 focus:ring-summit-orange-400 cursor-pointer"
+                      aria-label="Select all on this page"
+                    />
+                  </th>
+                  {['Reference ID', 'Student', 'School', 'Grade', 'City', 'Email', 'Phone', 'Parent/Teacher', 'Status', 'Proof', 'Submitted'].map((h) => (
                     <th key={h} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-summit-charcoal/55 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-summit-orange-50">
                 {pageRows.map((r) => (
-                  <tr key={r.registration_ref} className="group/row hover:bg-summit-cream/50 transition-colors">
+                  <tr key={r.registration_ref} className={`group/row transition-colors ${selected.has(r.registration_ref) ? 'bg-summit-orange-50/60' : 'hover:bg-summit-cream/50'}`}>
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(r.registration_ref)}
+                        onChange={() => toggle(r.registration_ref)}
+                        className="w-4 h-4 rounded border-summit-orange-200 text-summit-orange-600 focus:ring-summit-orange-400 cursor-pointer"
+                        aria-label={`Select ${r.registration_ref}`}
+                      />
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap"><CopyCell text={r.registration_ref} className="font-mono font-semibold text-summit-orange-700" /></td>
                     <td className="px-4 py-3 font-semibold text-summit-charcoal whitespace-nowrap">{r.student_name}</td>
                     <td className="px-4 py-3 text-summit-charcoal/75 max-w-[180px] truncate" title={r.school_name}>{r.school_name}</td>
@@ -258,9 +338,14 @@ export default function AdminPage() {
                         {r.accompanied ? 'Yes' : 'No'}
                       </span>
                     </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ${STATUS_STYLES[r.proof_status] ?? 'bg-summit-charcoal/5 text-summit-charcoal/50'}`}>
+                        {r.proof_status}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
                       {r.payment_proof_path ? (
-                        <ProofThumb path={r.payment_proof_path} code={code} onOpen={setLightboxSrc} />
+                        <ProofThumb path={r.payment_proof_path} code={code} onOpen={(src) => openProof(r, src)} />
                       ) : (
                         <span className="text-summit-charcoal/35 text-xs">—</span>
                       )}
@@ -276,7 +361,7 @@ export default function AdminPage() {
                   </tr>
                 ))}
                 {pageRows.length === 0 && !loading && (
-                  <tr><td colSpan={10} className="px-4 py-12 text-center text-sm text-summit-charcoal/45">No registrations yet.</td></tr>
+                  <tr><td colSpan={12} className="px-4 py-12 text-center text-sm text-summit-charcoal/45">No registrations yet.</td></tr>
                 )}
               </tbody>
             </table>
@@ -308,14 +393,93 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {lightboxSrc && (
-        <ImageLightbox
-          src={lightboxSrc}
-          alt="Payment proof screenshot"
-          label="Payment proof preview"
-          open={!!lightboxSrc}
-          onClose={() => setLightboxSrc(null)}
-        />
+      {/* Proof lightbox with verify/reject */}
+      {lightboxSrc && lightboxRow && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-summit-ink/80 backdrop-blur-sm p-4 animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Payment proof preview"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxSrc(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors duration-150"
+            aria-label="Close preview"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+            <img src={lightboxSrc} alt="Payment proof screenshot" className="max-h-[70vh] w-auto mx-auto rounded-xl shadow-2xl animate-scale-in bg-white" />
+            <div className="mt-4 bg-white rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-sm">
+                <span className="font-semibold text-summit-charcoal">{lightboxRow.student_name}</span>
+                <span className="text-summit-charcoal/50"> · {lightboxRow.registration_ref}</span>
+              </div>
+              <div className="flex gap-2.5">
+                <button
+                  onClick={() => setStatus(lightboxRow.registration_ref, 'verified')}
+                  disabled={actionBusy !== null || lightboxRow.proof_status === 'verified'}
+                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors duration-150 active:scale-[0.97]"
+                >
+                  {actionBusy === `${lightboxRow.registration_ref}:verified` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  Verified
+                </button>
+                <button
+                  onClick={() => setStatus(lightboxRow.registration_ref, 'rejected')}
+                  disabled={actionBusy !== null || lightboxRow.proof_status === 'rejected'}
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors duration-150 active:scale-[0.97]"
+                >
+                  {actionBusy === `${lightboxRow.registration_ref}:rejected` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                  Rejected
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dual-confirm delete */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-summit-ink/70 backdrop-blur-sm p-4" onClick={() => setConfirmDelete(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center mb-4">
+              <Trash2 className="w-5 h-5 text-red-600" />
+            </div>
+            <h3 className="font-display font-bold text-lg text-summit-charcoal mb-1">
+              {confirmDelete === 'ask' ? `Delete ${selected.size} registration${selected.size !== 1 ? 's' : ''}?` : 'Are you absolutely sure?'}
+            </h3>
+            <p className="text-sm text-summit-charcoal/60 mb-5">
+              {confirmDelete === 'ask'
+                ? 'This permanently removes the rows and their payment screenshots from storage.'
+                : 'This action cannot be undone. Please confirm once more.'}
+            </p>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-summit-orange-200 text-sm font-semibold text-summit-charcoal/70 hover:bg-summit-cream transition-colors"
+              >
+                Cancel
+              </button>
+              {confirmDelete === 'ask' ? (
+                <button
+                  onClick={() => setConfirmDelete('sure')}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  onClick={bulkDelete}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors"
+                >
+                  Delete Permanently
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
